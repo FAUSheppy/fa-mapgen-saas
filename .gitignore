@@ -1,0 +1,7 @@
+hsperfdata_*
+instance/
+Neroxis-Map-Generator
+test*
+output/
+!output/.gitkeep
+kotlin*

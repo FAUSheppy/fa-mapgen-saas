@@ -1,0 +1,114 @@
+<!-- templates/display.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maps</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #111;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .map-card {
+            background: #1e1e1e;
+            border-radius: 8px;
+            overflow: hidden;
+            padding: 10px;
+            max-height: 30vw;
+        }
+
+        .map-card img {
+            width: auto;
+            height: 350px;
+            display: block;
+            border-radius: 4px;
+            margin: auto;
+        }
+
+        .map-id {
+            margin-top: 10px;
+            text-align: center;
+            word-break: break-all;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .map-card {
+            cursor: pointer;
+        }
+        
+        .image-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .image-overlay img {
+            height: 80vh;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+    </style>
+</head>
+<body>
+
+<script>
+    function openOverlay(src) {
+        const overlay = document.getElementById('image-overlay');
+        const image = document.getElementById('overlay-image');
+    
+        image.src = src;
+        overlay.style.display = 'flex';
+    }
+    
+    function closeOverlay() {
+        const overlay = document.getElementById('image-overlay');
+        const image = document.getElementById('overlay-image');
+    
+        overlay.style.display = 'none';
+        image.src = '';
+    }
+</script>
+
+<div class="grid">
+    {% for map in maps %}
+    <div class="map-card"
+         onclick="openOverlay('{{ url_for('static', filename='output/' + map.id + '/' + map.id + '_preview.png') }}')">
+        <img src="{{ url_for('static', filename='output/' + map.id + '/' + map.id + '_preview.png') }}"
+             alt="{{ map.id }}">
+        <div class="map-id">
+            {{ map.id }}
+        </div>
+    </div>
+    {% endfor %}
+    
+    <!-- Overlay -->
+    <div id="image-overlay" class="image-overlay" onclick="closeOverlay()">
+        <img id="overlay-image" src="" alt="Preview">
+    </div>
+
+<style>
+</style>
+
+</div>
+
+</body>
+</html>
