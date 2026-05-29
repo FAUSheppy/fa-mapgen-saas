@@ -24,7 +24,7 @@ import boto3
 # Configuration
 # -----------------------------------------------------------------------------
 
-DB_URL = os.environ["DB_URL"]
+DB_URL = os.environ.get("DB_URL") or os.environ.get("db-url")
 
 S3_ACCESS_KEY = os.environ["S3_ACCESS_KEY"]
 S3_SECRET_KEY = os.environ["S3_SECRET_KEY"]
