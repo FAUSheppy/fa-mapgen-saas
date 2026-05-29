@@ -1,4 +1,5 @@
 import random
+import math
 
 
 MAP_STYLES = [
@@ -115,7 +116,12 @@ PROP_STYLES = [
 ]
 
 
+
+def round_up_to_5(km):
+    return str(math.ceil(int(km.strip("km")) / 5) * 5) + "km"
+
 def generate_map_config(
+    _=None,
     map_size=None,
     spawn_count=None,
     num_teams=None,
@@ -127,6 +133,7 @@ def generate_map_config(
     prop_style=None,
     reclaim_density=None,
     resource_density=None,
+    **kwargs,
 ):
     """
     Generate a randomized map configuration.
@@ -189,8 +196,18 @@ def generate_map_config(
             if resource_density is not None
             else round(random.uniform(0, 1), 2)
         ),
+    
     }
 
+    # normalize mapsize
+    config["map_size"] = round_up_to_5(config["map_size"])
+
+    # fix overlapping style config #
+    if any([x in config for x in ["texture_style", "terrain-style", "resource-style", "prop-style"]]):
+        del config["style"]
+    
+    import json
+    print(json.dumps(config, indent=2))
     return config
 
 

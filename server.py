@@ -58,6 +58,7 @@ class RequestQueue(db.Model):
     request_id = Column(String)
     count = Column(Integer)
     finished = Column(Boolean)
+    state = Column(Integer)
 
 class Map(db.Model):
 
@@ -126,9 +127,12 @@ def search_maps():
         else:
             filters.append(column == value)
 
+    if request_id:
+        filters.append(Map.request_id == request_id)
+
     if filters:
         query = query.filter(and_(*filters))
-
+    
     maps = query.all()
 
     result = []
@@ -190,19 +194,21 @@ def create_request():
 
     request_id = str(uuid.uuid4())
 
-    options_full = mapgen_style.generate_map_config(options)
+    for i in range(0, 20):
 
-    queue_entry = RequestQueue(
-        options=json.dumps(options_full, sort_keys=True),
-        date=0,
-        request_id=request_id,
-        requester=request.remote_addr,
-        count=1,
-        finished=False,
-    )
+        options_full = mapgen_style.generate_map_config(options)
 
-    db.session.add(queue_entry)
-    db.session.commit()
+        queue_entry = RequestQueue(
+            options=json.dumps(options_full, sort_keys=True),
+            date=0,
+            request_id=request_id,
+            requester=request.remote_addr,
+            count=2,
+            finished=False,
+        )
+
+        db.session.add(queue_entry)
+        db.session.commit()
 
     return jsonify(
         {

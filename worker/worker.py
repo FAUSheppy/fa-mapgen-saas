@@ -2,6 +2,7 @@ import os
 import subprocess
 import re
 import json
+import time
 import shutil
 from pathlib import Path
 
@@ -38,7 +39,6 @@ S3_BUCKET = os.environ.get("S3_BUCKET", "mapgen-output")
 
 Base = declarative_base()
 
-
 class RequestQueue(Base):
     __tablename__ = "request_queue"
 
@@ -49,6 +49,7 @@ class RequestQueue(Base):
     request_id = Column(String)
     count = Column(Integer)
     finished = Column(Boolean)
+    state = Column(Integer)
 
 
 class Map(Base):
@@ -133,7 +134,7 @@ def generate(options: str, count: int) -> None:
         "--num-to-generate", str(int(count))
     ]
 
-    allowed = re.compile(r"[^A-Za-z0-9.]")
+    allowed = re.compile(r"[^A-Za-z0-9._]")
     
     for key, value in options.items():
         safe_key = allowed.sub("", str(key))
@@ -143,11 +144,12 @@ def generate(options: str, count: int) -> None:
             continue
     
         cmd.extend([
-            f"--{safe_key}",
+            f"--{safe_key.replace('_', '-')}",
             str(safe_value),
         ])
 
-    print(cmd)
+    import sys
+    print(cmd, file=sys.stderr)
     subprocess.run(cmd)
 
 # -----------------------------------------------------------------------------
@@ -208,13 +210,27 @@ def upload_pngs(session, s3_client, options, request_id):
 
 
 def main():
+
     session = Session()
     s3_client = create_s3_client()
+    with session.begin():
 
-    try:
         requests = session.scalars(
             select(RequestQueue).where(RequestQueue.finished.is_(False))
         ).all()
+
+        requests = session.scalars(
+            select(RequestQueue)
+            .where(
+                RequestQueue.finished.is_(False),
+                RequestQueue.state.is_(None),
+            )
+            .limit(10)
+            .with_for_update(skip_locked=True)
+        ).all()
+    
+        for req in requests:
+            req.state = 1
 
         for request in requests:
             print(
@@ -236,17 +252,12 @@ def main():
                 request_id=request.request_id
             )
 
-            # request.finished = True
+            request.finished = True
 
         session.commit()
 
-    except Exception:
-        session.rollback()
-        raise
-
-    finally:
-        session.close()
-
 if __name__ == "__main__":
     Base.metadata.create_all(engine)
-    main()
+    while True:
+        time.sleep(1)
+        main()
