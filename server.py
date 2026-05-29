@@ -141,8 +141,11 @@ def search_maps():
 
     if filters:
         query = query.filter(and_(*filters))
+
+    if not request_id:
+        query = query.order_by(func.random())
     
-    maps = query.all()
+    maps = query.limit(40).all()
 
     result = []
 
@@ -211,7 +214,7 @@ def create_request():
             date=0,
             request_id=request_id,
             requester=request.remote_addr,
-            count=2,
+            count=1,
             finished=False,
         )
 

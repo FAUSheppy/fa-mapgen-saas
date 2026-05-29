@@ -35,14 +35,15 @@ export default function MapBrowser() {
     }, [loadMaps]);
 
     useEffect(() => {
-        const timer = setInterval(
-            loadMaps,
-            5000
-        );
-
-        return () =>
-            clearInterval(timer);
-    }, [loadMaps]);
+        if (!requestId) {
+            loadMaps();
+            return;
+        }
+    
+        const timer = setInterval(loadMaps, 5000);
+    
+        return () => clearInterval(timer);
+    }, [loadMaps, requestId]);
 
     return (
         <div style={{ padding: "1rem" }}>
