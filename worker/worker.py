@@ -225,7 +225,7 @@ def main():
                 RequestQueue.finished.is_(False),
                 RequestQueue.state.is_(None),
             )
-            .limit(10)
+            .limit(1)
             .with_for_update(skip_locked=True)
         ).all()
     
