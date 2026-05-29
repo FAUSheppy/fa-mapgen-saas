@@ -75,7 +75,7 @@ class MapOptions(Base):
         primary_key=True,
     )
 
-    map_size = Column(String)
+    map_size = Column(Integer)
     spawn_count = Column(Integer)
     num_teams = Column(Integer)
 
