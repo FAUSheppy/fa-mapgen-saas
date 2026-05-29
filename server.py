@@ -43,7 +43,7 @@ from sqlalchemy import (
 app = Flask(__name__, static_folder=".", static_url_path="")
 
 # Configuration
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DB_URL") or os.getenv("db-url")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DB_URL") or os.getenv("database-url")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
