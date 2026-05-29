@@ -14,7 +14,7 @@ export default function MapCard({ map }) {
                     onClick={() => setShowImage(true)}
                 />
                 <div className="mt-2 break-all">
-                    <i>{map.id}</i>
+                    <i>{map.id.replace(/_preview\.png$/, '')}</i>
                 </div>
             </div>
 
