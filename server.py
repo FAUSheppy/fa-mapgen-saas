@@ -258,9 +258,12 @@ def get_map_image(map_id):
         download_name=key,
     )
 
+def create_app():
+    db.create_all()
+
 if __name__ == "__main__":
 
     with app.app_context():
-        db.create_all()
+        create_app()
 
     app.run(host="0.0.0.0", port=5000, debug=True)
