@@ -194,7 +194,6 @@ def generate_map_config(
     return config
 
 
-# Example usage
 if __name__ == "__main__":
     config = generate_map_config()
     print(config)

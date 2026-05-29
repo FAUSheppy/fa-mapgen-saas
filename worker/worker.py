@@ -1,5 +1,7 @@
 import os
 import subprocess
+import re
+import json
 import shutil
 from pathlib import Path
 
@@ -10,8 +12,10 @@ from sqlalchemy import (
     String,
     create_engine,
     select,
+    ForeignKey,
+    Float
 )
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 
 import boto3
 
@@ -42,6 +46,7 @@ class RequestQueue(Base):
     date = Column(Integer, primary_key=True)
 
     requester = Column(String)
+    request_id = Column(String)
     count = Column(Integer)
     finished = Column(Boolean)
 
@@ -50,7 +55,40 @@ class Map(Base):
     __tablename__ = "maps"
 
     id = Column(String, primary_key=True)  # filename
-    options = Column(String)
+    request_id = Column(String)
+    options = relationship(
+        "MapOptions",
+        back_populates="map",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+
+
+
+class MapOptions(Base):
+    __tablename__ = "map_options"
+
+    map_id = Column(
+        String,
+        ForeignKey("maps.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+
+    map_size = Column(String)
+    spawn_count = Column(Integer)
+    num_teams = Column(Integer)
+
+    style = Column(String)
+    terrain_symmetry = Column(String)
+    texture_style = Column(String)
+    terrain_style = Column(String)
+    resource_style = Column(String)
+    prop_style = Column(String)
+
+    reclaim_density = Column(Float)
+    resource_density = Column(Float)
+
+    map = relationship("Map", back_populates="options")
 
 
 engine = create_engine(DB_URL)
@@ -73,7 +111,7 @@ def generate_dev(options, count):
         "/output/",
         "--num-to-generate",
         "1",
-        "--spawn-count=14"
+        '--map-size=15km', '--spawn-count', '14'
     ]
 
     print("Generating more maps...")
@@ -92,8 +130,24 @@ def generate(options: str, count: int) -> None:
         "/NeroxisMapGenerator.jar",
         "--out-path",
         "./output/",
-        "--num-to-generate", "1"
+        "--num-to-generate", str(int(count))
     ]
+
+    allowed = re.compile(r"[^A-Za-z0-9.]")
+    
+    for key, value in options.items():
+        safe_key = allowed.sub("", str(key))
+        safe_value = allowed.sub("", str(value))
+    
+        if not safe_key:
+            continue
+    
+        cmd.extend([
+            f"--{safe_key}",
+            str(safe_value),
+        ])
+
+    print(cmd)
     subprocess.run(cmd)
 
 # -----------------------------------------------------------------------------
@@ -110,11 +164,12 @@ def create_s3_client():
     )
 
 
-def upload_pngs(session, s3_client, options: str):
+def upload_pngs(session, s3_client, options, request_id):
     output_dir = Path("./output")
 
     png_files = list(output_dir.rglob("*.png"))
 
+    options = json.loads(options)
     for png_file in png_files:
 
         filename = png_file.name
@@ -127,14 +182,29 @@ def upload_pngs(session, s3_client, options: str):
             Key=filename,  # remove path, upload filename only
         )
 
+        map_options = MapOptions(
+            map_size=options.get("map_size"),
+            spawn_count=options.get("spawn_count"),
+            num_teams=options.get("num_teams"),
+            style=options.get("style"),
+            terrain_symmetry=options.get("terrain_symmetry"),
+            texture_style=options.get("texture_style"),
+            terrain_style=options.get("terrain_style"),
+            resource_style=options.get("resource_style"),
+            prop_style=options.get("prop_style"),
+            reclaim_density=options.get("reclaim_density"),
+            resource_density=options.get("resource_density"),
+        )
         session.merge(
             Map(
                 id=filename,
-                options=options,
+                options=map_options,
+                request_id=request_id
             )
         )
 
-        shutil.rmtree(png_file.parent)
+        if not os.environ.get("DEV_SETUP"):
+            shutil.rmtree(png_file.parent)
 
 
 def main():
@@ -152,15 +222,18 @@ def main():
                 f"date={request.date}"
             )
 
+            options = json.loads(request.options)
+
             if os.environ.get("DEV_SETUP"):
-                generate_dev(request.options, request.count)
+                generate_dev(options, request.count)
             else:
-                generate(request.options, request.count)
+                generate(options, request.count)
 
             upload_pngs(
                 session=session,
                 s3_client=s3_client,
                 options=request.options,
+                request_id=request.request_id
             )
 
             # request.finished = True
@@ -173,7 +246,6 @@ def main():
 
     finally:
         session.close()
-
 
 if __name__ == "__main__":
     Base.metadata.create_all(engine)

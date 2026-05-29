@@ -8,3 +8,4 @@ kotlin*
 secrets.sh
 .env
 *.swp
+__pycache__/
