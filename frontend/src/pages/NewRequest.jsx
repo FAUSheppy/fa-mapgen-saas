@@ -2,23 +2,19 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { createRequest } from "../api";
+import { FILTERS } from "../constants/filters";
 
 export default function NewRequest() {
     const navigate = useNavigate();
 
-    const [form, setForm] = useState({
-        map_size: "",
-        spawn_count: "",
-        num_teams: "",
-        style: "",
-        terrain_symmetry: "",
-        texture_style: "",
-        terrain_style: "",
-        resource_style: "",
-        prop_style: "",
-        reclaim_density: "",
-        resource_density: "",
-    });
+
+    const initialForm = Object.fromEntries(
+        FILTERS.map((f) => [
+            f.key,
+            f.defaultValue ?? null,
+        ])
+    );
+    const [form, setForm] = useState(initialForm);
 
     const update = (field, value) => {
         setForm((prev) => ({
@@ -30,41 +26,105 @@ export default function NewRequest() {
     const submit = async (e) => {
         e.preventDefault();
 
-        const response =
-            await createRequest(form);
+        const response = await createRequest(form);
 
         navigate(
             `/?request-id=${response.data.request_id}`
         );
     };
 
+
     return (
+        <div className="mt-3">
+        <div className="m-3">
+            <h1>Leave fields unchanged for random values</h1>
+        </div>
         <form
             onSubmit={submit}
-            style={{
-                display: "grid",
-                gap: "1rem",
-                maxWidth: "500px",
-                margin: "2rem auto",
-            }}
+            className="mx-auto grid max-w-4xl gap-6"
         >
-            {Object.keys(form).map((field) => (
-                <input
-                    key={field}
-                    placeholder={field}
-                    value={form[field]}
-                    onChange={(e) =>
-                        update(
-                            field,
-                            e.target.value
-                        )
-                    }
-                />
-            ))}
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {FILTERS.map((filter) => (
+                    <div
+                        key={filter.key}
+                        className="flex flex-col gap-2"
+                    >
+                        <label className="text-sm font-medium">
+                            {filter.label}
+                        </label>
 
-            <button type="submit">
+                        {filter.type === "select" ? (
+                            <select
+                                className="rounded border p-2"
+                                value={
+                                    form[filter.key] ?? ""
+                                }
+                                onChange={(e) =>
+                                    update(
+                                        filter.key,
+                                        e.target.value
+                                    )
+                                }
+                            >
+                                <option value="">
+                                    Select...
+                                </option>
+
+                                {filter.options.map(
+                                    (option) => (
+                                        <option
+                                            key={option}
+                                            value={option}
+                                        >
+                                            {option}
+                                        </option>
+                                    )
+                                )}
+                            </select>
+                        ) : (
+                            <>
+                                <input
+                                    type="range"
+                                    min={filter.min}
+                                    max={filter.max}
+                                    step={filter.step}
+                                    value={
+                                        form[
+                                            filter.key
+                                        ] ??
+                                        filter.min
+                                    }
+                                    onChange={(e) =>
+                                        update(
+                                            filter.key,
+                                            Number(
+                                                e.target
+                                                    .value
+                                            )
+                                        )
+                                    }
+                                    className="w-full"
+                                />
+
+                                <div className="text-sm text-gray-500">
+                                    {form[
+                                        filter.key
+                                    ] ??
+                                        filter.min}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                ))}
+            </div>
+
+            <button
+                type="submit"
+                className="rounded bg-blue-600 px-4 py-2 text-white"
+            >
                 Create Request
             </button>
         </form>
+    </div>
     );
 }

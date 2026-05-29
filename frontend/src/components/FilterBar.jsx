@@ -1,3 +1,5 @@
+import { FILTERS } from "../constants/filters";
+
 export default function FilterBar({ filters, setFilters }) {
     const update = (field, value) => {
         setFilters((prev) => ({
@@ -7,133 +9,63 @@ export default function FilterBar({ filters, setFilters }) {
     };
 
     return (
-        <div
-            style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(4,1fr)",
-                gap: "1rem",
-            }}
-        >
-            <input
-                placeholder="map_size"
-                value={filters.map_size || ""}
-                onChange={(e) =>
-                    update("map_size", e.target.value)
-                }
-            />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {FILTERS.map((filter) => (
+                <div key={filter.key} className="flex flex-col gap-2">
+                    <label className="text-sm font-medium">
+                        {filter.label}
+                    </label>
 
-            <input
-                type="number"
-                placeholder="spawn_count"
-                value={filters.spawn_count || ""}
-                onChange={(e) =>
-                    update(
-                        "spawn_count",
-                        Number(e.target.value)
-                    )
-                }
-            />
+                    {filter.type === "select" ? (
+                        <select
+                            className="rounded border p-2"
+                            value={filters[filter.key] ?? ""}
+                            onChange={(e) =>
+                                update(
+                                    filter.key,
+                                    e.target.value || undefined
+                                )
+                            }
+                        >
+                            <option value="">Any</option>
 
-            <input
-                type="number"
-                placeholder="num_teams"
-                value={filters.num_teams || ""}
-                onChange={(e) =>
-                    update(
-                        "num_teams",
-                        Number(e.target.value)
-                    )
-                }
-            />
+                            {filter.options.map((option) => (
+                                <option
+                                    key={option}
+                                    value={option}
+                                >
+                                    {option}
+                                </option>
+                            ))}
+                        </select>
+                    ) : (
+                        <>
+                            <input
+                                type="range"
+                                min={filter.min}
+                                max={filter.max}
+                                step={filter.step}
+                                value={
+                                    filters[filter.key] ??
+                                    filter.min
+                                }
+                                onChange={(e) =>
+                                    update(
+                                        filter.key,
+                                        Number(e.target.value)
+                                    )
+                                }
+                                className="w-full"
+                            />
 
-            <input
-                placeholder="style"
-                value={filters.style || ""}
-                onChange={(e) =>
-                    update("style", e.target.value)
-                }
-            />
-
-            <input
-                placeholder="terrain_symmetry"
-                value={filters.terrain_symmetry || ""}
-                onChange={(e) =>
-                    update(
-                        "terrain_symmetry",
-                        e.target.value
-                    )
-                }
-            />
-
-            <input
-                placeholder="texture_style"
-                value={filters.texture_style || ""}
-                onChange={(e) =>
-                    update(
-                        "texture_style",
-                        e.target.value
-                    )
-                }
-            />
-
-            <input
-                placeholder="terrain_style"
-                value={filters.terrain_style || ""}
-                onChange={(e) =>
-                    update(
-                        "terrain_style",
-                        e.target.value
-                    )
-                }
-            />
-
-            <input
-                placeholder="resource_style"
-                value={filters.resource_style || ""}
-                onChange={(e) =>
-                    update(
-                        "resource_style",
-                        e.target.value
-                    )
-                }
-            />
-
-            <input
-                placeholder="prop_style"
-                value={filters.prop_style || ""}
-                onChange={(e) =>
-                    update(
-                        "prop_style",
-                        e.target.value
-                    )
-                }
-            />
-
-            <input
-                type="number"
-                step="0.1"
-                placeholder="reclaim_density"
-                value={filters.reclaim_density || ""}
-                onChange={(e) =>
-                    update(
-                        "reclaim_density",
-                        Number(e.target.value)
-                    )
-                }
-            />
-
-            <input
-                type="number"
-                step="0.1"
-                placeholder="resource_density"
-                value={filters.resource_density || ""}
-                onChange={(e) =>
-                    update(
-                        "resource_density",
-                        Number(e.target.value)
-                    )
-                }
-            />
+                            <div className="text-sm text-gray-500">
+                                {filters[filter.key] ??
+                                    filter.min}
+                            </div>
+                        </>
+                    )}
+                </div>
+            ))}
         </div>
     );
 }

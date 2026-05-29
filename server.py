@@ -103,7 +103,8 @@ class MapOptions(db.Model):
 def search_maps():
     payload = request.get_json(force=True)
 
-    epsilon = float(payload.pop("epsilon", 0.1))
+    epsilon = float(payload.pop("epsilon", 0.02))
+    epsilon_players = 4
     request_id = payload.pop("request_id", None)
 
     query = (
@@ -118,16 +119,24 @@ def search_maps():
         if field not in payload:
             continue
 
+
+
         value = payload[field]
         column = getattr(MapOptions, field)
 
         if field in NUMERIC_FIELDS:
-            filters.append(column >= value - epsilon)
-            filters.append(column <= value + epsilon)
+            epsilon_tmp = epsilon
+            if field == "spawn_count":
+                epsilon_tmp = 4
+            elif field == "map_size":
+                epsilon_tmp = 4
+
+            filters.append(column >= value - epsilon_tmp)
+            filters.append(column <= value + epsilon_tmp)
         else:
             filters.append(column == value)
 
-    if request_id:
+    if request_id and not filters:
         filters.append(Map.request_id == request_id)
 
     if filters:
@@ -177,8 +186,7 @@ NUMERIC_FIELDS = {
 
 def build_options_dict(data):
     return {
-        field: data.get(field)
-        for field in OPTION_FIELDS
+        field: data.get(field) for field in OPTION_FIELDS
         if data.get(field) is not None
     }
 
@@ -190,7 +198,7 @@ def build_options_dict(data):
 @app.route("/request/new", methods=["POST"])
 def create_request():
 
-    options = build_options_dict(request.form)
+    options = build_options_dict(request.json)
 
     request_id = str(uuid.uuid4())
 
