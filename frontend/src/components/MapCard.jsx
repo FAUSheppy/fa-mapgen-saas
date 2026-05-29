@@ -25,7 +25,7 @@ export default function MapCard({ map }) {
                 >
                     <img
                         src={mapImageUrl(map.id)}
-                        alt={map.id}
+                        alt={map.id.replace(/_preview\.png$/, '')}
                         className="h-[80vw] w-auto"
                     />
                 </div>
