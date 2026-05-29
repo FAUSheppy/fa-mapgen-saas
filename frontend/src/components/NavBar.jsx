@@ -12,7 +12,7 @@ export default function NavBar() {
     const handleMainClick = (e) => {
         if (location.pathname === "/") {
             e.preventDefault();
-            window.location.reload();
+            window.location.href = "/";
         }
     };
 
