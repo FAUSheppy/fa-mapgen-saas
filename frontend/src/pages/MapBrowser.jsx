@@ -77,6 +77,31 @@ export default function MapBrowser() {
                             map={map}
                         />
                     ))}
+
+            {requestId && maps.length < 20 && (
+                <div
+                    className="
+                        border rounded-lg p-6
+                        flex flex-col items-center justify-center
+                        gap-4 min-h-[200px]
+                    "
+                >
+                    <div
+                        className="
+                            h-8 w-8
+                            border-4 border-gray-300
+                            border-t-blue-500
+                            rounded-full
+                            animate-spin
+                        "
+                    />
+
+                    <span className="text-sm text-gray-500">
+                        Requests queued...
+                    </span>
+                </div>
+            )}
+
             </div>
         </div>
     );
