@@ -1,0 +1,3 @@
+[submodule "Neroxis-Map-Generator"]
+	path = Neroxis-Map-Generator
+	url = git@github.com:FAForever/Neroxis-Map-Generator.git
