@@ -26,7 +26,7 @@ export default function MapCard({ map }) {
                     <img
                         src={mapImageUrl(map.id)}
                         alt={map.id.replace(/_preview\.png$/, '')}
-                        className="h-[60vw] w-auto max-h-80"
+                        className="h-[60vw] w-auto max-h-[80%]"
                     />
                 </div>
             )}
