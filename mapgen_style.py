@@ -177,13 +177,13 @@ def generate_map_config(options):
         config["reclaim_density"] = options.get(
             "reclaim_density",
             round(random.uniform(0, 1), 2),
-        ),
+        )
     
         # Float between 0 and 1
         config["resource_density"] = options.get(
             "resource_density",
             round(random.uniform(0, 1), 2),
-        ),
+        )
 
     # normalize mapsize
     config["map_size"] = convert_to_grid_units(config["map_size"])
