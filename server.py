@@ -244,6 +244,15 @@ def create_request():
         }
     )
 
+@app.route("/queue", methods=["GET"])
+def get_queue_size():
+    return flask.jsonify(
+        { "count": db.session.query(RequestQueue).filter(
+            RequestQueue.finished==False).count()
+        }
+    )
+
+
 
 @app.route("/maps/<map_id>/image", methods=["GET"])
 def get_map_image(map_id):

@@ -12,5 +12,8 @@ export const searchMaps = (filters) =>
 export const createRequest = (payload) =>
     api.post("/request/new", payload);
 
+export const queueSize = (payload) =>
+    api.get("/queue");
+
 export const mapImageUrl = (mapId) =>
     `${baseURL}/maps/${mapId}/image`;
