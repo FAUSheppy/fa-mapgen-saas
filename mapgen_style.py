@@ -99,7 +99,7 @@ RESOURCE_STYLES = [
     "LOW_MEX",
     "WATER_MEX",
     "HI_MEX_LAND_LOW_MEX_WATER",
-    "ONE_HYDRO_NO_MEX",
+    #"ONE_HYDRO_NO_MEX",
 ]
 
 PROP_STYLES = [
@@ -117,10 +117,12 @@ PROP_STYLES = [
 
 
 
-def round_up_to_5(km):
-    if type(km) == int:
-        return km - km % 64
-    return str(math.ceil(int(km.strip("km")) / 5) * 5) + "km"
+def convert_to_grid_units(value):
+
+    if value < 512:
+        value = value * 512 / 10
+
+    return int(value)
 
 def generate_map_config(options):
     """
@@ -180,7 +182,7 @@ def generate_map_config(options):
     }
 
     # normalize mapsize
-    config["map_size"] = round_up_to_5(config["map_size"])
+    config["map_size"] = convert_to_grid_units(config["map_size"])
 
     # fix overlapping style config #
     if any([x in config for x in ["texture_style", "terrain-style", "resource-style", "prop-style"]]):

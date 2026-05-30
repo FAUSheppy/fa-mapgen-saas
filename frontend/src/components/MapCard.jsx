@@ -13,23 +13,54 @@ export default function MapCard({ map }) {
                     className="w-full cursor-pointer"
                     onClick={() => setShowImage(true)}
                 />
-                <div className="mt-2 break-all">
-                    <i>{map.id.replace(/_preview\.png$/, '')}</i>
+                <div className="mt-2 flex items-start gap-2">
+                    <i className="break-all flex-1">
+                        {map.id.replace(/_preview\.png$/, '')}
+                    </i>
+
+                    <button
+                        type="button"
+                        className="shrink-0 rounded bg-gray-200 px-2 py-1 text-xs hover:bg-gray-300"
+                        onClick={() =>
+                            navigator.clipboard.writeText(
+                                map.id.replace(/_preview\.png$/, '')
+                            )
+                        }
+                    >
+                        Copy
+                    </button>
                 </div>
             </div>
 
-            {showImage && (
+        {showImage && (
+            <div
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+                onClick={() => setShowImage(false)}
+            >
                 <div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
-                    onClick={() => setShowImage(false)}
+                    className="flex h-[60vw] max-h-[80%] gap-6 rounded bg-[rgb(228,213,167)] p-4"
+                    onClick={(e) => e.stopPropagation()}
                 >
                     <img
                         src={mapImageUrl(map.id)}
                         alt={map.id.replace(/_preview\.png$/, '')}
-                        className="h-[60vw] w-auto max-h-[80%]"
+                        className="w-auto border border-black rounded-[10px]"
                     />
+
+                    <div className="max-w-md overflow-auto text-sm color-white text-black">
+                        <h2 className="p-3 font-semibold">Options</h2>
+                        <div className="p-3 space-y-1">
+                            {Object.entries(map.options ?? {}).map(([key, value]) => (
+                                <div key={key} className="flex gap-2">
+                                    <span className="font-medium font-bold">{key}:</span>
+                                    <span>{String(value)}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
-            )}
+            </div>
+        )}
         </>
     );
 }

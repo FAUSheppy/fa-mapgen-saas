@@ -33,6 +33,7 @@ export default function NavBar() {
                 >
                     Request New Maps
                 </NavLink>
+
             </div>
         </nav>
     );

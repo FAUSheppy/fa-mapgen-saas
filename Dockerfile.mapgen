@@ -9,7 +9,7 @@ COPY Neroxis-Map-Generator/ .
 # Build jar
 RUN chmod +x gradlew 
 
-RUN ./gradlew assemble
+RUN ./gradlew assemble -PgeneratorVersion="1.21.1"
 
 # ---- Runtime stage ----
 FROM eclipse-temurin:25-jre
@@ -17,7 +17,7 @@ FROM eclipse-temurin:25-jre
 WORKDIR /
 
 # Copy generated jar to /
-COPY --from=build /build/generator/build/libs/NeroxisGen_snapshot.jar /NeroxisMapGenerator.jar
+COPY --from=build /build/generator/build/libs/NeroxisGen*.jar /NeroxisMapGenerator.jar
 
 # Default command
 ENTRYPOINT ["java", "-jar", "/NeroxisMapGenerator.jar"]

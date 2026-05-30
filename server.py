@@ -5,6 +5,7 @@ import random
 import subprocess
 from io import BytesIO
 import flask_sqlalchemy
+import sys
 
 import mapgen_style
 
@@ -104,7 +105,8 @@ def search_maps():
     payload = request.get_json(force=True)
 
     epsilon = float(payload.pop("epsilon", 0.02))
-    epsilon_players = 4
+    epsilon_players = 2
+    epsilon_map_size = 128
     request_id = payload.pop("request_id", None)
 
     query = (
@@ -116,20 +118,26 @@ def search_maps():
     filters = []
 
     for field in OPTION_FIELDS:
+
         if field not in payload:
             continue
-
-
 
         value = payload[field]
         column = getattr(MapOptions, field)
 
+        print(NUMERIC_FIELDS, field in NUMERIC_FIELDS, field)
         if field in NUMERIC_FIELDS:
+
             epsilon_tmp = epsilon
+
             if field == "spawn_count":
-                epsilon_tmp = 4
+                epsilon_tmp = epsilon_players
             elif field == "map_size":
-                epsilon_tmp = 4
+                epsilon_tmp = epsilon_map_size
+                value = mapgen_style.convert_to_grid_units(value)
+            
+            print(field)
+            print(field, value)
 
             filters.append(column >= value - epsilon_tmp)
             filters.append(column <= value + epsilon_tmp)
@@ -150,6 +158,7 @@ def search_maps():
     result = []
 
     for m in maps:
+
         map_data = {
             "id": m.id,
             "options": {
@@ -160,6 +169,10 @@ def search_maps():
 
         if request_id:
             map_data["request_id"] = request_id
+
+        if "map_size" in map_data:
+            map_size_km = int(map_data["map_size"]*512/10)
+            map_data["map_size"] = f"{map_size_km}x{map_size_km}"
 
         result.append(map_data)
 
@@ -180,6 +193,7 @@ OPTION_FIELDS = [
 ]
 
 NUMERIC_FIELDS = {
+    "map_size",
     "spawn_count",
     "num_teams",
     "reclaim_density",
