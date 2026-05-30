@@ -47,7 +47,7 @@ export default function MapCard({ map }) {
                         className="w-auto border border-black rounded-[10px]"
                     />
 
-                    <div className="max-w-md overflow-auto text-sm color-white text-black text-lg">
+                    <div className="max-w-md overflow-auto text-sm color-white text-black text-[17px]">
                         <h2 className="p-3 font-semibold">Options</h2>
                         <div className="p-3 space-y-1">
                             {Object.entries(map.options ?? {}).map(([key, value]) => (
