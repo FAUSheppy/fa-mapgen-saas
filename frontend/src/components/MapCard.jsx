@@ -20,7 +20,7 @@ export default function MapCard({ map }) {
 
                     <button
                         type="button"
-                        className="shrink-0 rounded bg-gray-200 px-2 py-1 text-xs hover:bg-gray-300 text-back"
+                        className="shrink-0 rounded bg-gray-200 px-2 py-1 text-xs hover:bg-gray-300 text-black"
                         onClick={() =>
                             navigator.clipboard.writeText(
                                 map.id.replace(/_preview\.png$/, '')
