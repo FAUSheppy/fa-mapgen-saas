@@ -142,44 +142,48 @@ def generate_map_config(options):
         "num_teams": options.get("num_teams", 2),
     
         "style": options.get("style", random.choice(MAP_STYLES)),
+
     
-        "terrain_symmetry": options.get(
+    }
+
+    if not options.get("style"):
+
+        config["terrain_symmetry"] = options.get(
             "terrain_symmetry",
             random.choice(TERRAIN_SYMMETRIES),
-        ),
+        )
     
-        "texture_style": options.get(
+        config["texture_style"] = options.get(
             "texture_style",
             random.choice(TEXTURE_STYLES),
-        ),
+        )
     
-        "terrain_style": options.get(
+        config["terrain_style"] = options.get(
             "terrain_style",
             random.choice(TERRAIN_STYLES),
-        ),
+        )
     
-        "resource_style": options.get(
+        config["resource_style"] = options.get(
             "resource_style",
             random.choice(RESOURCE_STYLES),
-        ),
+        )
     
-        "prop_style": options.get(
+        config["prop_style"] = options.get(
             "prop_style",
             random.choice(PROP_STYLES),
-        ),
-    
+        )
+
         # Float between 0 and 1
-        "reclaim_density": options.get(
+        config["reclaim_density"] = options.get(
             "reclaim_density",
             round(random.uniform(0, 1), 2),
         ),
     
         # Float between 0 and 1
-        "resource_density": options.get(
+        config["resource_density"] = options.get(
             "resource_density",
             round(random.uniform(0, 1), 2),
         ),
-    }
 
     # normalize mapsize
     config["map_size"] = convert_to_grid_units(config["map_size"])

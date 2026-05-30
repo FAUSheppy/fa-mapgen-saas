@@ -47,10 +47,29 @@ export default function MapBrowser() {
 
     return (
         <div style={{ padding: "1rem" }}>
-            <h1>Maps</h1>
+            <h1 className="p-3 text-lg font-bold">Maps</h1>
+
+            <button onClick={loadMaps} type="button"
+                    className="
+                        px-4 py-2
+                        rounded-md
+                        bg-blue-600
+                        text-white
+                        font-medium
+                        transition-colors
+                        hover:bg-blue-700
+                        active:bg-blue-800
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-blue-500
+                        disabled:opacity-50
+                        disabled:cursor-not-allowed
+                    ">
+                Reload Maps with filters
+            </button>
 
             {requestId && (
-                <div>
+                <div className="p3">
                     Request ID: {requestId}
                 </div>
             )}

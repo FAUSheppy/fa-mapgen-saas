@@ -6,6 +6,7 @@ import subprocess
 from io import BytesIO
 import flask_sqlalchemy
 import sys
+import datetime
 
 import mapgen_style
 
@@ -225,7 +226,7 @@ def create_request():
 
         queue_entry = RequestQueue(
             options=json.dumps(options_full, sort_keys=True),
-            date=0,
+            date=datetime.datetime.now().timestamp() - i*1000,
             request_id=request_id,
             requester=request.remote_addr,
             count=1,
@@ -233,7 +234,8 @@ def create_request():
         )
 
         db.session.add(queue_entry)
-        db.session.commit()
+        
+    db.session.commit()
 
     return jsonify(
         {
