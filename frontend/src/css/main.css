@@ -7,3 +7,7 @@ body{
     font-family: 'Poppins', sans-serif;
 }
 
+.chromium-select-fix{
+    background: #333;
+    border: 1px solid #555;
+}

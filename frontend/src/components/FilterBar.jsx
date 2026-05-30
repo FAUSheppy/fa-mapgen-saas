@@ -18,7 +18,7 @@ export default function FilterBar({ filters, setFilters }) {
 
                     {filter.type === "select" ? (
                         <select
-                            className="rounded border p-2"
+                            className="rounded border p-2 chromium-select-fix"
                             value={filters[filter.key] ?? ""}
                             onChange={(e) =>
                                 update(
@@ -33,6 +33,7 @@ export default function FilterBar({ filters, setFilters }) {
                                 <option
                                     key={option}
                                     value={option}
+                                    className="chromium-select-fix"
                                 >
                                     {option}
                                 </option>
