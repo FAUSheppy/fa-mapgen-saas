@@ -244,14 +244,19 @@ def create_request():
         }
     )
 
+
+def get_queue_count():
+
+    count = db.session.query(RequestQueue).filter(RequestQueue.finished==False).count()
+    return count
+
 @app.route("/queue", methods=["GET"])
 def get_queue_size():
-    return flask.jsonify(
-        { "count": db.session.query(RequestQueue).filter(
-            RequestQueue.finished==False).count()
-        }
-    )
+    return flask.jsonify({"count": get_queue_count() })
 
+@app.route("/queue-prometheus", methods=["GET"])
+def get_queue_size_p():
+    return (f"queue_length {get_queue_count()}", 200)
 
 
 @app.route("/maps/<map_id>/image", methods=["GET"])
