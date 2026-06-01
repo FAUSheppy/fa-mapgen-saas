@@ -72,7 +72,7 @@ export default function NewRequest() {
                             {filter.type === "select" ? (
                                 <select
                                     disabled={disabled}
-                                    className="rounded border p-2 disabled:cursor-not-allowed disabled:bg-gray-100"
+                                    className="rounded border p-2 chromium-select-fix disabled:cursor-not-allowed disabled:bg-gray-100"
                                     value={form[filter.key] ?? ""}
                                     onChange={(e) =>
                                         update(
