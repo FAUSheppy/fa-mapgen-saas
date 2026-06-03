@@ -43,7 +43,6 @@ export default function NewRequest() {
         navigate(
             `/?request-id=${response.data.request_id}`
         );
-
     };
 
 

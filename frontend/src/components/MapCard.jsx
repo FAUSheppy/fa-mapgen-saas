@@ -4,6 +4,7 @@ import { mapImageUrl } from "../api";
 export default function MapCard({ map }) {
     const [showImage, setShowImage] = useState(false);
     const [loaded, setLoaded] = useState(false);
+
     const grayPlaceholder =
         "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNTYiIGhlaWdodD0iMjU2Ij48cmVjdCB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgZmlsbD0iIzgwODA4MCIvPjwvc3ZnPg==";
     
@@ -31,27 +32,28 @@ export default function MapCard({ map }) {
                     alt={map.id}
                     width="265"
                     height="265"
-                    className={`w-[256px] cursor-pointer transition-opacity transition-duration-700 ${
+                    className={`w-[256px] mx-auto cursor-pointer transition-opacity transition-duration-700 ${
                         loaded ? "opacity-100" : "opacity-0"
                     }`}
                     onLoad={() => setLoaded(true)}
                     onClick={() => setShowImage(true)}
                 />
-                <div className="mt-2 flex items-start gap-2">
-                    <i className="break-all flex-1">
+                <div className="mt-2 w-[256px] mx-auto">
+
+                    <i className="w-full break-all">
                         {map.id.replace(/_preview\.png$/, '')}
                     </i>
 
                     <button
                         type="button"
-                        className="shrink-0 rounded bg-gray-200 px-2 py-1 text-xs hover:bg-gray-300 text-black"
+                        className="w-full transition active:scale-95 mt-2 rounded bg-gray-200 px-2 py-1 text-xs hover:bg-gray-300 text-black"
                         onClick={() =>
                             navigator.clipboard.writeText(
                                 map.id.replace(/_preview\.png$/, '')
                             )
                         }
                     >
-                        Copy
+                        Copy Seed
                     </button>
                 </div>
             </div>
