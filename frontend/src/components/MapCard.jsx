@@ -1,16 +1,40 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { mapImageUrl } from "../api";
 
 export default function MapCard({ map }) {
     const [showImage, setShowImage] = useState(false);
+    const [loaded, setLoaded] = useState(false);
+    const grayPlaceholder =
+        "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNTYiIGhlaWdodD0iMjU2Ij48cmVjdCB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgZmlsbD0iIzgwODA4MCIvPjwvc3ZnPg==";
+    
+    // component mount
+    const [visible, setVisible] = useState(false);
+    useEffect(() => {
+        requestAnimationFrame(() => setVisible(true));
+    }, []);
+
+    useEffect(() => {
+        setLoaded(false);
+
+        const img = new Image();
+        img.src = map.presigned_image_url;
+        img.onload = () => setLoaded(true);
+    }, [map.presigned_image_url]);
 
     return (
         <>
-            <div className="border rounded p-2 shadow">
+            <div className={`
+                    border rounded p-2 shadow transition-all duration-300 ${visible ? "opacity-100" : "opacity-0"}
+                `}>
                 <img
-                    src={mapImageUrl(map.id)}
+                    src={map.presigned_image_url}
                     alt={map.id}
-                    className="w-full cursor-pointer"
+                    width="265"
+                    height="265"
+                    className={`w-[256px] cursor-pointer transition-opacity transition-duration-700 ${
+                        loaded ? "opacity-100" : "opacity-0"
+                    }`}
+                    onLoad={() => setLoaded(true)}
                     onClick={() => setShowImage(true)}
                 />
                 <div className="mt-2 flex items-start gap-2">
@@ -42,7 +66,7 @@ export default function MapCard({ map }) {
                     onClick={(e) => e.stopPropagation()}
                 >
                     <img
-                        src={mapImageUrl(map.id)}
+                        src={map.presigned_image_url}
                         alt={map.id.replace(/_preview\.png$/, '')}
                         className="w-auto border border-black rounded-[10px]"
                     />

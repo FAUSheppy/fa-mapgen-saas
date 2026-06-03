@@ -21,10 +21,22 @@ export default function MapBrowser() {
 
     const loadMaps = useCallback(async () => {
         try {
-            const response =
-                await searchMaps(filters);
+            const response = await searchMaps(filters);
 
-            setMaps(response.data);
+            // avoid using a new presigned URL for existing ID
+            setMaps(prev => {
+                const previousById = new Map(
+                    prev.map(item => [item.id, item])
+                );
+
+                return response.data.map(item => ({
+                    ...item,
+                    presigned_image_url:
+                        previousById.get(item.id)?.presigned_image_url ??
+                        item.presigned_image_url,
+                }));
+            });
+
         } catch (e) {
             console.error(e);
         }

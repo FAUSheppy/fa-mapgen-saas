@@ -7,6 +7,7 @@ from io import BytesIO
 import flask_sqlalchemy
 import sys
 import datetime
+import utils.flask_wrappers
 
 import mapgen_style
 
@@ -18,6 +19,8 @@ from sqlalchemy import func
 import uuid
 
 import boto3
+from botocore.config import Config
+
 from flask import (
     Blueprint,
     jsonify,
@@ -103,7 +106,14 @@ class MapOptions(db.Model):
 
 @app.route("/maps/search", methods=["POST"])
 def search_maps():
+
     payload = request.get_json(force=True)
+
+    # TODO query for maps liked by user
+    liked_by_user = flask.request.args.get("liked_by_user")
+
+    # TODO order by amount of likes
+    order_by_likes = flask.request.args.get("order_by_likes")
 
     epsilon = float(payload.pop("epsilon", 0.02))
     epsilon_players = 2
@@ -116,6 +126,7 @@ def search_maps():
         .join(MapOptions)
     )
 
+    # TODO allow or filters #
     filters = []
 
     for field in OPTION_FIELDS:
@@ -160,12 +171,34 @@ def search_maps():
 
     for m in maps:
 
+        s3 = boto3.client(
+            "s3",
+            config=Config(
+                signature_version="s3v4"
+            ),
+            endpoint_url=os.environ["S3_ENDPOINT"],
+            aws_access_key_id=os.environ["S3_ACCESS_KEY"],
+            region_name="euw",
+            aws_secret_access_key=os.environ["S3_SECRET_KEY"],
+        )
+
+        url = s3.generate_presigned_url(
+            ClientMethod="get_object",
+            Params={
+                "Bucket": os.environ["S3_BUCKET"],
+                "Key": f"{m.id}",
+
+            },
+            ExpiresIn=300,
+        )
+
         map_data = {
             "id": m.id,
             "options": {
                 field: getattr(m.options, field)
                 for field in OPTION_FIELDS
             },
+            "presigned_image_url": url, # TODO included presigned URL to s3web.anycast.atlantishq.de or equivalent
         }
 
         if request_id:
@@ -219,7 +252,6 @@ def create_request():
     options = build_options_dict(request.json)
 
     request_id = str(uuid.uuid4())
-
     for i in range(0, 20):
 
         options_full = mapgen_style.generate_map_config(options)
@@ -243,6 +275,19 @@ def create_request():
             "request_id": request_id,
         }
     )
+
+@utils.flask_wrappers.with_username()
+@app.route("/like", methods=["GET", "POST"])
+def like(username):
+    if flask.request.method == "POST":
+        mapid = flask.request.json["mapid"]
+        like_remove = flask.request.json["remove"]
+        # safe a like for that user
+        return
+    else:
+        username = flask.request.json.get("username", username)
+        # query all all likes from that user
+        return
 
 
 def get_queue_count():

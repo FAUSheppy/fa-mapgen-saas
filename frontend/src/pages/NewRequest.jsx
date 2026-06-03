@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useFormStatus } from "react-dom";
 import { useNavigate } from "react-router-dom";
 
 import { createRequest } from "../api";
@@ -15,6 +16,7 @@ export default function NewRequest() {
         ])
     );
     const [form, setForm] = useState(initialForm);
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
     const styleSelected = Boolean(form.style);
@@ -35,11 +37,13 @@ export default function NewRequest() {
     const submit = async (e) => {
         e.preventDefault();
 
+        setLoading(true);
         const response = await createRequest(form);
 
         navigate(
             `/?request-id=${response.data.request_id}`
         );
+
     };
 
 
@@ -130,9 +134,32 @@ export default function NewRequest() {
 
             <button
                 type="submit"
-                className="rounded bg-blue-600 px-4 py-2 text-white"
+                disabled={loading}
+                className="rounded bg-blue-600 px-4 py-2 text-white disabled:bg-gray-400 disabled:text-gray-100"
             >
-                Create Request
+                {loading && (
+                    <svg
+                        className="h-4 w-4 animate-spin m-auto"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                    >
+                        <circle
+                            className="opacity-25"
+                            cx="24"
+                            cy="24"
+                            r="20"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                        />
+                        <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                        />
+                    </svg>
+                )}
+                {loading ? "Waiting for server to accept the request.." : "Create Request"}
             </button>
         </form>
     </div>

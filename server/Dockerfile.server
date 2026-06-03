@@ -3,12 +3,15 @@ FROM alpine
 RUN apk add --no-cache py3-pip
 
 WORKDIR /app
+
 COPY ./*.py .
+COPY ./utils utils
+
 RUN mkdir /app/output
 
 RUN python3 -m pip install --no-cache-dir --break-system-packages waitress
 
-COPY requirements-server.txt .
+COPY ./requirements-server.txt .
 RUN python3 -m pip install --no-cache-dir --break-system-packages -r requirements-server.txt
 
 EXPOSE 5000/tcp
