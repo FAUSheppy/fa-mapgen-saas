@@ -137,7 +137,6 @@ def search_maps():
         value = payload[field]
         column = getattr(MapOptions, field)
 
-        print(NUMERIC_FIELDS, field in NUMERIC_FIELDS, field)
         if field in NUMERIC_FIELDS:
 
             epsilon_tmp = epsilon
@@ -147,6 +146,9 @@ def search_maps():
             elif field == "map_size":
                 epsilon_tmp = epsilon_map_size
                 value = mapgen_style.convert_to_grid_units(value)
+
+            # do not move this up, grid values are int, km are not! #
+            value = int(value)
             
             print(field)
             print(field, value)

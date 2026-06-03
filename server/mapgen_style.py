@@ -119,6 +119,7 @@ PROP_STYLES = [
 
 def convert_to_grid_units(value):
 
+    value = float(value)
     if value < 512:
         value = value * 512 / 10
 

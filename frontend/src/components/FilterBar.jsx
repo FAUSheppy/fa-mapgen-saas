@@ -1,7 +1,9 @@
 import { FILTERS } from "../constants/filters";
+import { useEffect, useState, useCallback } from "react";
 
 export default function FilterBar({ filters, setFilters }) {
     const styleSelected = Boolean(filters.style);
+    const [localValue, setLocalValue] = useState({});
 
     const allowedWhenStyleSelected = [
         "style",
@@ -16,6 +18,14 @@ export default function FilterBar({ filters, setFilters }) {
             [field]: value === "" ? undefined : value,
         }));
     };
+
+    const updateCache = (field, value) => {
+        setLocalValue((prev) => ({
+            ...prev,
+            [field]: value === "" ? undefined : value,
+        }));
+    };
+
 
     return (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 pt-5">
@@ -69,23 +79,18 @@ export default function FilterBar({ filters, setFilters }) {
                                     max={filter.max}
                                     step={filter.step}
                                     value={
-                                        filters[
+                                        localValue[
                                             filter.key
                                         ] ?? filter.min
                                     }
-                                    onChange={(e) =>
-                                        update(
-                                            filter.key,
-                                            Number(
-                                                e.target.value
-                                            )
-                                        )
-                                    }
+                                    onChange={(e) => updateCache(filter.key, e.target.value || undefined)}
+                                    onMouseUp={() => update(filter.key, localValue[filter.key] || undefined)}
+                                    onTouchEnd={() => update(filter.key, localValue[filter.key] || undefined)}
                                     className="w-full disabled:cursor-not-allowed"
                                 />
 
                                 <div className="text-sm text-gray-500">
-                                    {filters[
+                                    {localValue[
                                         filter.key
                                     ] ?? filter.min}
                                 </div>
