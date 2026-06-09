@@ -17,4 +17,4 @@ RUN python3 -m pip install --no-cache-dir --break-system-packages -r requirement
 EXPOSE 5000/tcp
 
 ENTRYPOINT ["waitress-serve"] 
-CMD ["--host", "0.0.0.0", "--port", "5000", "--call", "app:createApp"]
+CMD ["--host", "0.0.0.0", "--port", "5000",  "--threads=16", "--call", "app:createApp"]
