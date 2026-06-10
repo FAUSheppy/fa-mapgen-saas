@@ -1,8 +1,11 @@
 import { NavLink } from "react-router-dom";
 import { queueSize } from "../api";
 import { useState, useEffect } from "react";
+import { useUser } from "../context/UserContext";
 
 export default function NavBar() {
+
+    const { user, userLoading } = useUser();
     const linkClass = ({ isActive }) =>
         [
             "rounded px-3 py-2 transition-colors",
@@ -69,11 +72,27 @@ export default function NavBar() {
 
                 {queueCount >= 0 && (
                     <div
-                        className={`ml-auto rounded bg-white px-3 py-1 text-sm ${queueColor}`}
+                        className={`ml-auto float-right rounded bg-white px-3 py-1 text-sm ${queueColor}`}
                     >
                         Queue Size: {queueCount}
                     </div>
-                )}  
+                )}
+
+                {user?.username ? (
+                <div style={{ display: "contents" }}>
+                <NavLink to="/user" className="nav-link">
+                    {user.username}
+                </NavLink>
+                <a href="/oauth2/sign_out" className="nav-link float-right">
+                    Logout
+                </a>
+                </div>
+                ) : (
+                <a href="/oauth2/start" className="nav-link float-right">
+                    Login
+                </a>
+                )}
+
             </div>
         </nav>
     );
