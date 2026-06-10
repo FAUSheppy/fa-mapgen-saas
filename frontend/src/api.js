@@ -6,8 +6,13 @@ export const api = axios.create({
     baseURL: baseURL
 });
 
-export const searchMaps = (filters) =>
-    api.post("/maps/search", filters);
+export const searchMaps = (filters) => {
+    const rayId = new URLSearchParams(window.location.search).get("ray_id");
+    return api.post("/maps/search", {
+        ...filters,
+        ray_id: rayId
+    });
+}
 
 export const createRequest = (payload) =>
     api.post("/request/new", payload);

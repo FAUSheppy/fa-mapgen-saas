@@ -14,6 +14,7 @@ import utils.constants
 import boto3
 import os
 import botocore
+import time
 
 bp = Blueprint("maps", __name__)
 
@@ -32,6 +33,7 @@ def search_maps():
     epsilon_players = 2
     epsilon_map_size = 128
     request_id = payload.pop("request_id", None)
+    seed = payload.pop("ray_id", None)
 
     query = (
         db.session.query(Map)
@@ -71,14 +73,22 @@ def search_maps():
         else:
             filters.append(column == value)
 
+    # handle like query #
+
     if request_id and not filters:
         filters.append(Map.request_id == request_id)
 
     if filters:
         query = query.filter(and_(*filters))
 
+    # introduce variation to search #
     if not request_id:
-        query = query.order_by(func.random())
+        seed = seed or hex(time.time_ns())
+        query = query.order_by(
+            func.md5(
+                func.concat(Map.id, "-", seed)
+            )
+        )
     
     maps = query.limit(40).all()
 
@@ -125,4 +135,9 @@ def search_maps():
 
         result.append(map_data)
 
-    return jsonify(result)
+    response = {
+        "result" : result,
+        "seed" : seed
+    }
+
+    return jsonify(response)

@@ -54,7 +54,7 @@ export default function NavBar() {
 
    return (
         <nav className="border-b bg-[#bf6868]">
-            <div className="flex max-w-6xl items-center gap-4 px-4 py-3">
+            <div className="px-4 py-3">
                 <NavLink
                     to="/"
                     className={linkClass}
@@ -72,23 +72,23 @@ export default function NavBar() {
 
                 {queueCount >= 0 && (
                     <div
-                        className={`ml-auto float-right rounded bg-white px-3 py-1 text-sm ${queueColor}`}
+                        className={`float-right rounded bg-white px-3 py-1 text-sm ${queueColor}`}
                     >
                         Queue Size: {queueCount}
                     </div>
                 )}
 
-                {user?.username ? (
-                <div style={{ display: "contents" }}>
-                <NavLink to="/user" className="nav-link">
-                    {user.username}
+                {user?.user_id ? (
+                <div className="float-right mx-3" style={{ display: "contents" }}>
+                <NavLink to="/user" className="mx-3 float-right">
+                    {user.user_id}
                 </NavLink>
-                <a href="/oauth2/sign_out" className="nav-link float-right">
+                <a href="/oauth2/sign_out" className="mx-3 float-right">
                     Logout
                 </a>
                 </div>
                 ) : (
-                <a href="/oauth2/start" className="nav-link float-right">
+                <a href="/oauth2/start" className="mx-3 float-right">
                     Login
                 </a>
                 )}

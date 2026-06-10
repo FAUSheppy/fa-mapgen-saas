@@ -22,9 +22,24 @@ export default function MapBrowser() {
 
     const loadMaps = useCallback(async () => {
         try {
+            setLoading(true);
 
-            setLoading(true)
             const response = await searchMaps(filters);
+
+            const { result, seed } = response.data;
+
+            // Persist seed in URL as ray_id if not already present
+            const params = new URLSearchParams(window.location.search);
+
+            if (!params.get("ray_id") && seed) {
+                params.set("ray_id", seed);
+
+                window.history.replaceState(
+                    {},
+                    "",
+                    `${window.location.pathname}?${params.toString()}`
+                );
+            }
 
             // avoid using a new presigned URL for existing ID
             setMaps(prev => {
@@ -32,7 +47,7 @@ export default function MapBrowser() {
                     prev.map(item => [item.id, item])
                 );
 
-                return response.data.map(item => ({
+                return result.map(item => ({
                     ...item,
                     presigned_image_url:
                         previousById.get(item.id)?.presigned_image_url ??
@@ -40,12 +55,10 @@ export default function MapBrowser() {
                 }));
             });
 
-
-
         } catch (e) {
             console.error(e);
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     }, [filters]);
 

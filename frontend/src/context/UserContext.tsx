@@ -15,7 +15,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    fetch("/dev-api/whoami", { credentials: "include" })
+    fetch("/api-dev/whoami", { credentials: "include" })
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch user");
         return res.json();

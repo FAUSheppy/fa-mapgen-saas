@@ -21,3 +21,15 @@ class User(db.Model):
     name = Column(String)
 
     votes = relationship("MapVote", back_populates="user")
+
+    @classmethod
+    def get_or_create(cls, user_id):
+
+        user = db.session.get(cls, user_id)
+
+        if user is None:
+            user = cls(id=user_id, name=user_id)
+            db.session.add(user)
+            db.session.commit()
+
+        return user
