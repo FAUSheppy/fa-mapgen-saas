@@ -11,6 +11,7 @@ import uuid
 
 from database.db_import import db
 from database.RequestQueue import RequestQueue
+from database.User import User
 from database.MapVote import MapVote
 
 import utils.flask_wrappers
@@ -23,7 +24,13 @@ def vote(username):
     if flask.request.method == "POST":
         payload = flask.request.get_json(force=True)
         mapid = payload["mapid"]
+        
         vote = int(payload["vote"])
+        valid_votes = [1, 0, -1]
+        if vote not in valid_votes:
+            return (f"Invalid Vote {vote} only {valid_votes} are allowed.", 400)
+
+        user = User.get_or_create(username)
         map_vote = MapVote(map_id=mapid,
                            user_id=username, 
                            vote=vote,
