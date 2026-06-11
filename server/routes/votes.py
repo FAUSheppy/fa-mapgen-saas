@@ -21,7 +21,9 @@ bp = Blueprint("votes", __name__)
 @bp.route("/vote", methods=["GET", "POST"])
 @utils.flask_wrappers.with_username()
 def vote(username):
+
     if flask.request.method == "POST":
+
         payload = flask.request.get_json(force=True)
         mapid = payload["mapid"]
         
@@ -37,8 +39,13 @@ def vote(username):
                            updated_at=datetime.datetime.now())
         db.session.merge(map_vote)
         db.session.commit()
+
         return flask.jsonify(map_vote.to_dict())
+
     else:
         # query all all likes from that user
-        votes = db.session.query(MapVote).filter(MapVote.user_id==username).all()
+        username = flask.request.args.get("user") or username
+        if not username:
+            return ("Need to query for user=USERPATTERN or be logged in to use this API route", 400)
+        votes = db.session.query(MapVote).filter(MapVote.user_id.ilike(username)).all()
         return flask.jsonify(votes)

@@ -158,6 +158,15 @@ export default function MapBrowser() {
                         <MapCard
                             key={map.id}
                             map={map}
+                            onVote={(vote) => {
+                                setMaps(prev =>
+                                    prev.map(m =>
+                                        m.id === map.id
+                                            ? { ...m, vote }
+                                            : m
+                                    )
+                                );
+                            }}
                         />
                     ))}
 

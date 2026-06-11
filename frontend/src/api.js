@@ -14,6 +14,12 @@ export const searchMaps = (filters) => {
     });
 }
 
+export const voteMap = (mapId, vote) =>
+    api.post("/vote", {
+        mapid: mapId,
+        vote,
+    });
+
 export const createRequest = (payload) =>
     api.post("/request/new", payload);
 

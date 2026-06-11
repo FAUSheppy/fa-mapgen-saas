@@ -1,13 +1,19 @@
 import { useEffect, useState } from "react";
-import { mapImageUrl } from "../api";
+import { mapImageUrl, voteMap } from "../api";
 
-export default function MapCard({ map }) {
+export default function MapCard({ map, onVote }) {
     const [showImage, setShowImage] = useState(false);
     const [loaded, setLoaded] = useState(false);
 
     const grayPlaceholder =
         "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNTYiIGhlaWdodD0iMjU2Ij48cmVjdCB3aWR0aD0iMjU2IiBoZWlnaHQ9IjI1NiIgZmlsbD0iIzgwODA4MCIvPjwvc3ZnPg==";
-    
+
+    const handleVote = async (vote) => {
+        await voteMap(map.id, vote);
+        console.log(map.id, vote)
+        onVote(vote);
+    };
+
     // component mount
     const [visible, setVisible] = useState(false);
     useEffect(() => {
@@ -21,6 +27,9 @@ export default function MapCard({ map }) {
         img.src = map.presigned_image_url;
         img.onload = () => setLoaded(true);
     }, [map.presigned_image_url]);
+
+    const voteButtonClass =
+        "w-20 transition active:scale-95 mt-2 rounded bg-gray-200 px-2 py-1 text-xs hover:bg-gray-300 text-black";
 
     return (
         <>
@@ -55,6 +64,30 @@ export default function MapCard({ map }) {
                     >
                         Copy Seed
                     </button>
+
+                    <div className="map-actions">
+                        <button
+                            className={`${voteButtonClass} float-left ${map.vote === 1 ? "active-like" : ""}`}
+                            onClick={() => handleVote(1)}
+                        >
+                            Like
+                        </button>
+
+                        <button
+                            className={`${voteButtonClass} ml-[8px] ${map.vote === 0 ? "active-neutral" : ""}`}
+                            onClick={() => handleVote(0)}
+                        >
+                            Reset
+                        </button>
+
+                        <button
+                            className={`${voteButtonClass} float-right ${map.vote === -1 ? "active-dislike" : ""}`}
+                            onClick={() => handleVote(-1)}
+                        >
+                            Dislike
+                        </button>
+                    </div>
+
                 </div>
             </div>
 

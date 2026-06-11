@@ -11,3 +11,11 @@ body{
     background: #333;
     border: 1px solid #555;
 }
+
+.active-like{
+    background: chartreuse;
+}
+
+.active-dislike{
+    background: rgb(255, 80, 74);
+}
