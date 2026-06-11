@@ -119,6 +119,15 @@ export default function MapCard({ map, onVote }) {
                                 </div>
                             ))}
                         </div>
+                        <h2 className="pt-3 px-3 font-semibold">Liked by</h2>
+                        <div className="p-3 space-y-1 overflow-scroll">
+                            {map.liked_by.map( u => (
+                                <div className="flex gap-2">
+                                    <span>{String(u.id)}</span>
+                                    <b>{u.is_curator ? " (Curator)" : "" }</b>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
