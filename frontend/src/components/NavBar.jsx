@@ -80,10 +80,12 @@ export default function NavBar() {
 
                 {user?.user_id ? (
                 <div className="float-right mx-3" style={{ display: "contents" }}>
-                <NavLink to="/user" className="mx-3 float-right">
+                <NavLink to="/user" 
+                    className={`mx-3 py-1 px-3 float-right ${user.is_curator ? "bg-green-700 rounded" : ""}`}
+                >
                     {user.user_id}
                 </NavLink>
-                <a href="/oauth2/sign_out" className="mx-3 float-right">
+                <a href="/oauth2/sign_out" className="mx-3 py-1 float-right">
                     Logout
                 </a>
                 </div>

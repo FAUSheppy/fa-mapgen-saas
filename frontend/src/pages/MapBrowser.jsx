@@ -6,19 +6,24 @@ import FilterBar from "../components/FilterBar";
 import MapCard from "../components/MapCard";
 
 export default function MapBrowser() {
-    const [searchParams] = useSearchParams();
-
-    const requestId =
-        searchParams.get("request-id");
 
     const [loading, setLoading] = useState(false);
     const [maps, setMaps] = useState([]);
+    const [searchParams, setSearchParams] = useSearchParams();
 
+
+    const requestId = searchParams.get("request-id");
     const [filters, setFilters] = useState(
         requestId
             ? { request_id: requestId }
             : {}
     );
+
+    async function resetRayAndloadMaps(){
+        searchParams.delete("ray_id")
+        setSearchParams(searchParams);
+        loadMaps()
+    }
 
     const loadMaps = useCallback(async () => {
         try {
@@ -83,7 +88,7 @@ export default function MapBrowser() {
             <h1 className="p-3 text-lg font-bold">Maps</h1>
 
             { !requestId && (
-                <button onClick={loadMaps} type="button"
+                <button onClick={resetRayAndloadMaps} type="button"
                         disabled={loading}
                         className="
                             px-4 py-2

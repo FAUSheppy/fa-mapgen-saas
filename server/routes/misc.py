@@ -14,7 +14,7 @@ from database.RequestQueue import RequestQueue
 from database.MapVote import MapVote
 
 import utils.flask_wrappers
-
+import utils.curators
 
 bp = Blueprint("misc", __name__)
 
@@ -26,4 +26,7 @@ def get_queue_size():
 @bp.route("/whoami", methods=["GET"])
 @utils.flask_wrappers.with_username()
 def whoami(username):
-    return flask.jsonify({"user_id": username})
+    return flask.jsonify({
+        "user_id": username,
+        "is_curator": username in utils.curators.CURATORS
+    })

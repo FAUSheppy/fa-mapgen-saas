@@ -1,9 +1,11 @@
 import { FILTERS } from "../constants/filters";
 import { useEffect, useState, useCallback } from "react";
+import { useUser } from "../context/UserContext";
 
 export default function FilterBar({ filters, setFilters }) {
     const styleSelected = Boolean(filters.style);
     const [localValue, setLocalValue] = useState({});
+    const { user, userLoading } = useUser();
 
     const allowedWhenStyleSelected = [
         "style",
@@ -29,6 +31,66 @@ export default function FilterBar({ filters, setFilters }) {
 
     return (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 pt-5">
+
+            <div className="flex flex-wrap gap-4 w-100">
+                <input
+                    type="text"
+                    value={filters.user ?? ""}
+                    onChange={(e) =>
+                        update(
+                            "user",
+                            e.target.value || undefined
+                        )
+                    }
+                    placeholder="Liked by user (% for partial match)"
+                    className="rounded border p-2"
+                />
+
+                <label className="flex items-center gap-2">
+                    <input
+                        type="checkbox"
+                        checked={Boolean(filters.curators)}
+                        onChange={(e) =>
+                            update(
+                                "curators",
+                                e.target.checked ? true : undefined
+                            )
+                        }
+                    />
+                    Liked by curators
+                </label>
+
+                <label className="flex items-center gap-2">
+                    <input
+                        type="checkbox"
+                        checked={Boolean(filters.order_by_likes)}
+                        onChange={(e) =>
+                            update(
+                                "order_by_likes",
+                                e.target.checked ? true : undefined
+                            )
+                        }
+                    />
+                    Order by likes
+                </label>
+
+                {user?.user_id ? (
+                <label className="flex items-center gap-2">
+                    <input
+                        type="checkbox"
+                        checked={Boolean(filters.voted_self)}
+                        onChange={(e) =>
+                            update(
+                                "voted_self",
+                                e.target.checked ? true : undefined
+                            )
+                        }
+                    />
+                    Voted on by you
+                </label>
+                ) :  (<p>Login to filer for your own votes.</p>)}
+            </div>
+
             {FILTERS.map((filter) => {
                 const disabled =
                     styleSelected &&

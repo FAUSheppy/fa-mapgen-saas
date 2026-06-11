@@ -1,4 +1,5 @@
 from database.db_import import db
+import utils.curators
 
 from sqlalchemy import (
     Boolean,
@@ -19,6 +20,7 @@ class User(db.Model):
 
     id = Column(String, primary_key=True)  # OIDC subject
     name = Column(String)
+    is_curator = Column(Boolean)
 
     votes = relationship("MapVote", back_populates="user")
 
@@ -28,8 +30,15 @@ class User(db.Model):
         user = db.session.get(cls, user_id)
 
         if user is None:
-            user = cls(id=user_id, name=user_id)
+            user = cls(id=user_id, name=user_id, is_curator=user_id in utils.curators.CURATORS)
             db.session.add(user)
             db.session.commit()
 
         return user
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "is_curator": self.is_curator
+        }

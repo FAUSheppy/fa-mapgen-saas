@@ -32,15 +32,25 @@ def vote(username):
         if vote not in valid_votes:
             return (f"Invalid Vote {vote} only {valid_votes} are allowed.", 400)
 
-        user = User.get_or_create(username)
-        map_vote = MapVote(map_id=mapid,
-                           user_id=username, 
-                           vote=vote,
-                           updated_at=datetime.datetime.now())
-        db.session.merge(map_vote)
+        if vote == 0:
+
+            # handle reset vote #
+            map_vote = db.session.query(MapVote).filter(MapVote.map_id==mapid, MapVote.user_id==username).first()
+            if map_vote:
+                db.session.delete(map_vote)
+
+        else:
+            user = User.get_or_create(username)
+            map_vote = MapVote(map_id=mapid,
+                            user_id=username, 
+                            vote=vote,
+                            updated_at=datetime.datetime.now())
+            db.session.merge(map_vote)
+
         db.session.commit()
 
-        return flask.jsonify(map_vote.to_dict())
+        retval = map_vote.to_dict() if map_vote else {}
+        return flask.jsonify(retval)
 
     else:
         # query all all likes from that user

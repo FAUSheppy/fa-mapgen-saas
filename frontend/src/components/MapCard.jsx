@@ -34,7 +34,7 @@ export default function MapCard({ map, onVote }) {
     return (
         <>
             <div className={`
-                    border rounded p-2 shadow transition-all duration-300 ${visible ? "opacity-100" : "opacity-0"}
+                    relative border rounded p-2 shadow transition-all duration-300 ${visible ? "opacity-100" : "opacity-0"}
                 `}>
                 <img
                     src={map.presigned_image_url}
@@ -47,6 +47,9 @@ export default function MapCard({ map, onVote }) {
                     onLoad={() => setLoaded(true)}
                     onClick={() => setShowImage(true)}
                 />
+                <div className="absolute top-2 right-2 bg-black/60 text-white px-2 py-1 rounded text-sm">
+                    ❤️ {map.like_count} ({map.like_ratio}%)
+                </div>
                 <div className="mt-2 w-[256px] mx-auto">
 
                     <i className="w-full break-all">
