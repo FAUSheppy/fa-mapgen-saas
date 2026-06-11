@@ -38,13 +38,18 @@ export default function NewRequest() {
         e.preventDefault();
 
         setLoading(true);
-        const response = await createRequest(form);
 
-        navigate(
-            `/?request-id=${response.data.request_id}`
+        const payload = Object.fromEntries(
+            Object.entries(form).map(([key, value]) => [
+                key,
+                value === "" ? null : value,
+            ])
         );
-    };
 
+        const response = await createRequest(payload);
+
+        navigate(`/?request-id=${response.data.request_id}`);
+    };
 
     return (
         <div className="mt-3">
