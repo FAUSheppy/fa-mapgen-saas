@@ -22,6 +22,9 @@ bp = Blueprint("votes", __name__)
 @utils.flask_wrappers.with_username()
 def vote(username):
 
+    if not username:
+        return ("Not logged in", 401)
+
     if flask.request.method == "POST":
 
         payload = flask.request.get_json(force=True)

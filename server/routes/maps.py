@@ -61,9 +61,10 @@ def search_maps(username):
             elif field == "map_size":
                 epsilon_tmp = epsilon_map_size
                 value = utils.mapgen_style.convert_to_grid_units(value)
-
-            # do not move this up, grid values are int, km are not! #
-            value = int(value)
+                # do not move this up, grid values are int, km are not! #
+                value = int(value)
+            else:
+                value = float(value)
             
             print(field)
             print(field, value)
