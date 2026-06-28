@@ -1,0 +1,10 @@
+# Features
+- Random Selection / multi select t -> Random with weights
+- fullscreen scroll/left right swipe like maps Selection
+- additional presets for maps
+- save presets for user
+- add maps from seed to favourites
+- collect maps from replays of high rated games
+- keep generating until stopped / request more maps button
+# Bugs
+- terrain style missing multi level
