@@ -11,6 +11,8 @@ export default function MapBrowser() {
     const [maps, setMaps] = useState([]);
     const [searchParams, setSearchParams] = useSearchParams();
 
+    const expectedMaps = searchParams.get("single") === "1" ? 1 : 20;
+
 
     const requestId = searchParams.get("request-id");
     const [filters, setFilters] = useState(
@@ -175,7 +177,7 @@ export default function MapBrowser() {
                         />
                     ))}
 
-            {requestId && maps.length < 20 && (
+            {requestId && maps.length < expectedMaps && (
                 <div
                     className="
                         border rounded-lg p-6
@@ -194,7 +196,7 @@ export default function MapBrowser() {
                     />
 
                     <span className="text-sm text-gray-500">
-                        { 20 - maps.length } more requests queued...
+                        { expectedMaps - maps.length } more requests queued...
                     </span>
                 </div>
             )}

@@ -19,7 +19,7 @@ bp = Blueprint("requests", __name__)
 
 def _build_options_dict(data):
     return {
-        field: data.get(field) for field in utils.constants.OPTION_FIELDS
+        field: data.get(field) for field in utils.constants.OPTION_FIELDS + [ "map_name"]
         if data.get(field) is not None
     }
 
@@ -29,7 +29,13 @@ def create_request():
     options = _build_options_dict(flask.request.json)
 
     request_id = str(uuid.uuid4())
-    for i in range(0, 20):
+    CREATE_COUNT = 20
+    map_name = options.get("map_name")
+    if map_name:
+        print(f"Generating specific map: {map_name}")
+        CREATE_COUNT = 1
+
+    for i in range(0, CREATE_COUNT):
 
         options_full = utils.mapgen_style.generate_map_config(options)
 

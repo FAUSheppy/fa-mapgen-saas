@@ -9,7 +9,7 @@ OPTION_FIELDS = [
     "resource_style",
     "prop_style",
     "reclaim_density",
-    "resource_density",
+    "resource_density"
 ]
 
 NUMERIC_FIELDS = {

@@ -22,11 +22,13 @@ export const voteMap = async (mapId, vote) => {
     }
 };
 
-export const voteMap = (mapId, vote) =>
-    api.post("/vote", {
-        mapid: mapId,
-        vote,
+export const searchMaps = (filters) => {
+const rayId = new URLSearchParams(window.location.search).get("ray_id");
+    return api.post("/maps/search", {
+        ...filters,
+        ray_id: rayId
     });
+}
 
 export const createRequest = (payload) =>
     api.post("/request/new", payload);

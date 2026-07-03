@@ -5,6 +5,26 @@ import { useNavigate } from "react-router-dom";
 import { createRequest } from "../api";
 import { FILTERS } from "../constants/filters";
 
+const VERSIONS = ["1.21.1"]
+
+function isValidMapId(id: string): boolean {
+    const PREFIX = "neroxis_map_generator_";
+
+    if (!id.startsWith(PREFIX)) {
+        return false;
+    }
+
+    const versionPattern = VERSIONS
+        .map((v) => v.replace(/\./g, "\\."))
+        .join("|");
+
+    const regex = new RegExp(
+        `^${PREFIX}(${versionPattern})_([a-z0-9]{13})_([a-z0-9]{16})$`
+    );
+
+    return regex.test(id);
+}
+
 export default function NewRequest() {
 
 
@@ -17,6 +37,7 @@ export default function NewRequest() {
     );
     const [form, setForm] = useState(initialForm);
     const [loading, setLoading] = useState(false);
+    const [valid, setValid] = useState<Record<string, boolean>>({});
 
     const navigate = useNavigate();
     const styleSelected = Boolean(form.style);
@@ -48,7 +69,9 @@ export default function NewRequest() {
 
         const response = await createRequest(payload);
 
-        navigate(`/?request-id=${response.data.request_id}`);
+        navigate(`/?request-id=${response.data.request_id}${
+            "map_name" in valid ? "&single=1" : ""
+        }`);
     };
 
     return (
@@ -77,60 +100,58 @@ export default function NewRequest() {
                                 {filter.label}
                             </label>
 
-                            {filter.type === "select" ? (
-                                <select
-                                    disabled={disabled}
-                                    className="rounded border p-2 chromium-select-fix disabled:cursor-not-allowed disabled:bg-gray-100"
-                                    value={form[filter.key] ?? ""}
-                                    onChange={(e) =>
-                                        update(
-                                            filter.key,
-                                            e.target.value
-                                        )
-                                    }
-                                >
-                                    <option value="">
-                                        Select...
+                        {filter.type === "select" ? (
+                            <select
+                                disabled={disabled}
+                                className="rounded border p-2 chromium-select-fix disabled:cursor-not-allowed disabled:bg-gray-100"
+                                value={form[filter.key] ?? ""}
+                                onChange={(e) => update(filter.key, e.target.value)}
+                            >
+                                <option value="">Select...</option>
+
+                                {filter.options.map((option) => (
+                                    <option key={option} value={option}>
+                                        {option}
                                     </option>
+                                ))}
+                            </select>
+                        ) : filter.type === "text" ? (
+                            <input
+                                disabled={disabled}
+                                type="text"
+                                className={`rounded border p-2 disabled:cursor-not-allowed disabled:bg-gray-100 ${
+                                    valid[filter.key] ? "border-green-500" : "border-red-300"
+                                }`}
+                                value={form[filter.key] ?? ""}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    update(filter.key, value);
+                                    setValid((prev) => ({
+                                        ...prev,
+                                        [filter.key]: isValidMapId(value),
+                                    }));
+                                }}
+                            />
+                        ) : (
+                            <>
+                                <input
+                                    disabled={disabled}
+                                    type="range"
+                                    min={filter.min}
+                                    max={filter.max}
+                                    step={filter.step}
+                                    value={form[filter.key] ?? filter.min}
+                                    onChange={(e) =>
+                                        update(filter.key, Number(e.target.value))
+                                    }
+                                    className="w-full disabled:cursor-not-allowed"
+                                />
 
-                                    {filter.options.map((option) => (
-                                        <option
-                                            key={option}
-                                            value={option}
-                                        >
-                                            {option}
-                                        </option>
-                                    ))}
-                                </select>
-                            ) : (
-                                <>
-                                    <input
-                                        disabled={disabled}
-                                        type="range"
-                                        min={filter.min}
-                                        max={filter.max}
-                                        step={filter.step}
-                                        value={
-                                            form[filter.key] ??
-                                            filter.min
-                                        }
-                                        onChange={(e) =>
-                                            update(
-                                                filter.key,
-                                                Number(
-                                                    e.target.value
-                                                )
-                                            )
-                                        }
-                                        className="w-full disabled:cursor-not-allowed"
-                                    />
-
-                                    <div className="text-sm text-gray-500">
-                                        {form[filter.key] ??
-                                            filter.min}
-                                    </div>
-                                </>
-                            )}
+                                <div className="text-sm text-gray-500">
+                                    {form[filter.key] ?? filter.min}
+                                </div>
+                            </>
+                        )}
                         </div>
                     );
                 })}

@@ -48,7 +48,7 @@ TERRAIN_SYMMETRIES = [
     "Z",
     "QUAD",
     "DIAG",
-    "NONE",
+    #"NONE",
 ]
 
 TEXTURE_STYLES = [
@@ -131,6 +131,10 @@ def generate_map_config(options):
 
     Any parameter set to None will be randomly generated.
     """
+
+    map_name = options.get("map_name")
+    if map_name:
+        return { "map_name": map_name }
     
     config = {
         # Mapsize in km, max 20km
@@ -193,8 +197,8 @@ def generate_map_config(options):
     if any([x in config for x in ["texture_style", "terrain-style", "resource-style", "prop-style"]]):
         del config["style"]
     
-    import json
-    print(json.dumps(config, indent=2))
+    #import json
+    #print(json.dumps(config, indent=2))
     return config
 
 

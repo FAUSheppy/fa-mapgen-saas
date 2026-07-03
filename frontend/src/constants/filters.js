@@ -1,5 +1,10 @@
 export const FILTERS = [
     {
+        key: "map_name",
+        label: "Mapgen Hash",
+        type: "text"
+    },
+    {
         key: "map_size",
         label: "Map Size",
         type: "slider",
