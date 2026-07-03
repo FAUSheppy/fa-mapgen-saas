@@ -85,6 +85,7 @@ class MapOptions(Base):
     terrain_style = Column(String)
     resource_style = Column(String)
     prop_style = Column(String)
+    version = Column(String)
 
     reclaim_density = Column(Float)
     resource_density = Column(Float)
@@ -125,18 +126,29 @@ def generate_dev(options, count):
 
 def generate(options: str, count: int) -> None:
     
+    allowed = re.compile(r"[^A-Za-z0-9._]")
+
+    version = options.pop("version", None)
+
+    binary = "/NeroxisGen_1.21.1.jar"
+    if version:
+        version = allowed.sub("", str(version))
+        binary = f"/NeroxisGen_{version}.jar"
+
     cmd = [
         "/opt/java/openjdk/bin/java",
         "-jar",
-        "/NeroxisMapGenerator.jar",
+        binary,
         "--out-path",
         "./output/",
         "--num-to-generate", str(int(count))
     ]
 
-    allowed = re.compile(r"[^A-Za-z0-9._]")
+    
+
     
     for key, value in options.items():
+
         safe_key = allowed.sub("", str(key))
         safe_value = allowed.sub("", str(value))
     
@@ -196,7 +208,9 @@ def upload_pngs(session, s3_client, options, request_id):
             prop_style=options.get("prop_style"),
             reclaim_density=options.get("reclaim_density"),
             resource_density=options.get("resource_density"),
+            version=options.get("version"),
         )
+
         session.merge(
             Map(
                 id=filename,
@@ -239,6 +253,7 @@ def main():
             )
 
             options = json.loads(request.options)
+            print(options)
 
             if os.environ.get("DEV_SETUP"):
                 generate_dev(options, request.count)

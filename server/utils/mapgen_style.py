@@ -134,7 +134,7 @@ def generate_map_config(options):
 
     map_name = options.get("map_name")
     if map_name:
-        return { "map_name": map_name }
+        return { "map_name": map_name, "version": options.get("version") }
     
     config = {
         # Mapsize in km, max 20km
@@ -148,6 +148,7 @@ def generate_map_config(options):
     
         "style": options.get("style", random.choice(MAP_STYLES)),
 
+        "version": options.get("version"),
     
     }
 

@@ -9,3 +9,4 @@ secrets.sh
 .env
 *.swp
 __pycache__/
+binaries/

@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { createRequest } from "../api";
 import { FILTERS } from "../constants/filters";
 
-const VERSIONS = ["1.21.1"]
+const VERSIONS = ["1.21.1", "1.21.2"]
 
 function isValidMapId(id: string): boolean {
     const PREFIX = "neroxis_map_generator_";

@@ -5,6 +5,16 @@ export const FILTERS = [
         type: "text"
     },
     {
+        key: "version",
+        label: "Version",
+        type: "select",
+        options: [
+            "1.19.0",
+            "1.21.1",
+            "1.21.2",
+        ],
+    },
+    {
         key: "map_size",
         label: "Map Size",
         type: "slider",

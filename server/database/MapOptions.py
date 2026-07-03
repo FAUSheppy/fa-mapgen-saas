@@ -32,6 +32,7 @@ class MapOptions(db.Model):
     terrain_style = Column(String)
     resource_style = Column(String)
     prop_style = Column(String)
+    version = Column(String)
 
     reclaim_density = Column(Float)
     resource_density = Column(Float)
