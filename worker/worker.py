@@ -1,6 +1,8 @@
 import os
+import sys
 import subprocess
 import re
+import datetime
 import json
 import time
 import shutil
@@ -29,6 +31,8 @@ DB_URL = os.environ.get("DB_URL") or os.environ.get("database-url")
 S3_ACCESS_KEY = os.environ["S3_ACCESS_KEY"]
 S3_SECRET_KEY = os.environ["S3_SECRET_KEY"]
 S3_ENDPOINT_URL = os.environ["S3_ENDPOINT"]
+
+DEBUG = os.environ.get("DEBUG") == "1"
 
 # Change as required
 S3_BUCKET = os.environ.get("S3_BUCKET", "mapgen-output")
@@ -116,13 +120,22 @@ def generate_dev(options, count):
         '--map-size=15km', '--spawn-count', '14'
     ]
 
-    print("Generating more maps...")
-    print("Running:", " ".join(cmd))
+    if DEBUG:
+        print("Generating more maps...")
+        print("Running:", " ".join(cmd))
 
     try:
-        subprocess.run(cmd)
+        if DEBUG:
+            subprocess.run(cmd)
+        else:
+            subprocess.run(
+                cmd,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
     except subprocess.CalledProcessError as e:
-        print(f"Generator failed: {e}")
+        if DEBUG:
+            print(f"Generator failed: {e}")
 
 def generate(options: str, count: int) -> None:
     
@@ -161,8 +174,18 @@ def generate(options: str, count: int) -> None:
         ])
 
     import sys
-    print(cmd, file=sys.stderr)
-    subprocess.run(cmd)
+    if DEBUG:
+        print(cmd, file=sys.stderr)
+        subprocess.run(cmd, timeout=180)
+    else:
+        proc = subprocess.run(
+            cmd,
+            timeout=180,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        return proc
 
 # -----------------------------------------------------------------------------
 # S3
@@ -188,7 +211,8 @@ def upload_pngs(session, s3_client, options, request_id):
 
         filename = png_file.name
 
-        print(f"Uploading {png_file} -> s3://{S3_BUCKET}/{filename}")
+        if DEBUG:
+            print(f"Uploading {png_file} -> s3://{S3_BUCKET}/{filename}")
 
         s3_client.upload_file(
             Filename=str(png_file),
@@ -222,9 +246,12 @@ def upload_pngs(session, s3_client, options, request_id):
         if not os.environ.get("DEV_SETUP"):
             shutil.rmtree(png_file.parent)
 
+    return len(png_files)
+
 
 def main():
 
+    start_time = datetime.datetime.now()
     session = Session()
     s3_client = create_s3_client()
     with session.begin():
@@ -247,20 +274,55 @@ def main():
             req.state = 1
 
         for request in requests:
-            print(
-                f"Processing request: options={request.options}, "
-                f"date={request.date}"
-            )
+            if DEBUG:
+                print(
+                    f"Processing request: options={request.options}, "
+                    f"date={request.date}"
+                )
 
             options = json.loads(request.options)
-            print(options)
+            if DEBUG:
+                print(options)
 
             if os.environ.get("DEV_SETUP"):
                 generate_dev(options, request.count)
             else:
-                generate(options, request.count)
+                try:
+                    proc = generate(options, request.count)
+                except subprocess.TimeoutExpired:
+                    if DEBUG:
+                        print("Generation killed after exceeding 180s.")
+                    else:
+                        print(json.dumps({
+                            "status": "aborted",
+                            "reason": "timeout",
+                            "message": "Generation killed after exceeding 180s.",
+                            "request_id": request.request_id,
+                            "date": request.date
+                        }), file=sys.stderr)
+                    request.finished = True
+                    session.commit()
+                    return
+                except subprocess.CalledProcessError as exc:
+                    if DEBUG:
+                        print(f"Process failed with exit code {exc.returncode}")
+                    else:
+                        print(json.dumps({
+                            "status": "aborted",
+                            "reason": "process_failed",
+                            "message": f"Process failed with exit code {exc.returncode}",
+                            "exit_code": exc.returncode,
+                            "stderr": exc.stderr,
+                            "stderr": exc.stdout,
+                            "request_id": request.request_id,
+                            "date": request.date
+                        }))
+                    request.finished = True
+                    session.commit()
+                    return
 
-            upload_pngs(
+
+            uploaded_maps = upload_pngs(
                 session=session,
                 s3_client=s3_client,
                 options=request.options,
@@ -268,6 +330,19 @@ def main():
             )
 
             request.finished = True
+
+            if not DEBUG:
+                print(json.dumps({
+                    "status": "completed",
+                    "request_id": request.request_id,
+                    "date": request.date,
+                    "requested_maps": request.count,
+                    "stdout": proc.stdout,
+                    "options": options,
+                    "uploaded_maps": uploaded_maps,
+                    "duration": (datetime.datetime.now() - start_time).total_seconds()
+
+                }), file=sys.stderr)
 
         session.commit()
 
