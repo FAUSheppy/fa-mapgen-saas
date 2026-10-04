@@ -7,10 +7,14 @@ import os
 
 bp = Blueprint("preview", __name__)
 
+@bp.route("/preview/<map_id>", methods=["GET"])
 @bp.route("/maps/<map_id>/image", methods=["GET"])
 def get_map_image(map_id):
 
     bucket = os.environ["S3_BUCKET"]
+
+    import sys
+    print(map_id)
 
     s3 = boto3.client(
         "s3",
