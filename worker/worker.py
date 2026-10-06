@@ -130,7 +130,7 @@ def register_worker(session, worker_type):
         worker_type=worker_type,
     )
 
-    session.add(worker)
+    session.merge(worker)
     session.commit()
     return worker
 
