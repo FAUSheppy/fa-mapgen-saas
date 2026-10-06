@@ -49,7 +49,7 @@ S3_BUCKET = os.environ.get("S3_BUCKET", "mapgen-output")
 Base = declarative_base()
 
 class Worker(Base):
-    __tablename__ = "workers"
+   __tablename__ = "workers"
 
    worker_id = Column(String, primary_key=True)
    last_seen = Column(Integer)
