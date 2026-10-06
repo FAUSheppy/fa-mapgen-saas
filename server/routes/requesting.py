@@ -85,9 +85,11 @@ def request_preview(mapid):
     if rq and rq.state == 1:
         wait_for_request = False
     if rq and rq.state == 2:
-        return ("The generation request failed because it lead to an infinite loop", 500)
+        return ("The generation request failed because it lead to an infinite loop", 422)
     if rq and rq.state == 3:
-        return ("The generation request failed because of invalid options (possibly unsupported mapgen version)", 500)
+        return ("The generation request failed because of invalid options (possibly unsupported mapgen version)", 400)
+    if rq and rq.state >= 4:
+        return ("The generation request failed for unknown reasons", 500)
     else:
         queue_entry = RequestQueue(
             options=json.dumps(options_full, sort_keys=True),

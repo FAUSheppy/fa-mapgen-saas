@@ -14,6 +14,7 @@ from database.RequestQueue import RequestQueue
 from database.MapVote import MapVote
 from database.Map import Map
 from database.User import User
+from database.Worker import Worker
 
 import utils.flask_wrappers
 import utils.curators
@@ -67,3 +68,18 @@ def whoami(username):
         "user_id": username,
         "is_curator": username in utils.curators.CURATORS
     })
+
+@bp.route("/workers", methods=["GET"])
+def workers():
+
+    workers = db.session.query(Worker).all()
+
+    return flask.jsonify([
+        {
+            "worker_id": worker.worker_id,
+            "last_seen": worker.last_seen,
+            "supported_versions": json.loads(worker.supported_versions),
+            "worker_type": worker.worker_type,
+        }
+        for worker in workers
+    ])

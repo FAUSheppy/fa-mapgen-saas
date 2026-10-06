@@ -3,6 +3,11 @@ import sys
 import subprocess
 import re
 import datetime
+
+import json
+import os
+import time
+from pathlib import Path
 import json
 import time
 import shutil
@@ -42,6 +47,14 @@ S3_BUCKET = os.environ.get("S3_BUCKET", "mapgen-output")
 # -----------------------------------------------------------------------------
 
 Base = declarative_base()
+
+class Worker(Base):
+    __tablename__ = "workers"
+
+   worker_id = Column(String, primary_key=True)
+   last_seen = Column(Integer)
+   supported_versions = Column(String)
+   worker_type = Column(String)
 
 class RequestQueue(Base):
     __tablename__ = "request_queue"
@@ -99,6 +112,27 @@ class MapOptions(Base):
 
 engine = create_engine(DB_URL)
 Session = sessionmaker(bind=engine)
+
+def register_worker(session, worker_type):
+
+    worker_id = os.environ["HOSTNAME"]
+
+    supported_versions = [
+        path.name.split("_")[1][:-4]
+        for path in Path("/").glob("*.jar")
+        if "_" in path.name
+    ]
+
+    worker = Worker(
+        worker_id=worker_id,
+        last_seen=int(time.time()),
+        supported_versions=json.dumps(supported_versions),
+        worker_type=worker_type,
+    )
+
+    session.add(worker)
+    session.commit()
+    return worker
 
 # -----------------------------------------------------------------------------
 # Placeholder generator
@@ -253,6 +287,7 @@ def main():
 
     start_time = datetime.datetime.now()
     session = Session()
+    register_worker(session, "k3s")
     s3_client = create_s3_client()
     with session.begin():
 
