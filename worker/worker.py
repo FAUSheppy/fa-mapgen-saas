@@ -366,6 +366,9 @@ def main():
                 request_id=request.request_id
             )
 
+            if uploaded_maps <= 0:
+                request.state = 4
+
             request.finished = True
 
             if not DEBUG:
