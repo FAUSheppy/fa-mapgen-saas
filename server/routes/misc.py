@@ -71,14 +71,17 @@ def whoami(username):
 
 @bp.route("/workers", methods=["GET"])
 def workers():
+    min_last_seen = int(time.time()) - 120
 
-    workers = db.session.query(Worker).all()
+    workers = db.session.query(Worker).filter(
+        Worker.last_seen >= min_last_seen
+    ).all()
 
     return flask.jsonify([
         {
             "worker_id": worker.worker_id,
             "last_seen": worker.last_seen,
-            "supported_versions": json.loads(worker.supported_versions),
+            "supported_versions": list(sorted(json.loads(worker.supported_versions))),
             "worker_type": worker.worker_type,
         }
         for worker in workers
