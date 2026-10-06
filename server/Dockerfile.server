@@ -4,6 +4,9 @@ RUN apk add --no-cache py3-pip
 
 WORKDIR /app
 
+COPY ./requirements-server.txt .
+RUN python3 -m pip install --no-cache-dir --break-system-packages -r requirements-server.txt
+
 COPY ./*.py .
 COPY ./utils utils
 COPY ./routes routes
@@ -12,9 +15,6 @@ COPY ./database database
 RUN mkdir /app/output
 
 RUN python3 -m pip install --no-cache-dir --break-system-packages waitress
-
-COPY ./requirements-server.txt .
-RUN python3 -m pip install --no-cache-dir --break-system-packages -r requirements-server.txt
 
 EXPOSE 5000/tcp
 
