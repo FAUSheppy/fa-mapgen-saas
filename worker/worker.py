@@ -300,6 +300,7 @@ def main():
                             "request_id": request.request_id,
                             "date": request.date
                         }), file=sys.stderr)
+                        request.state = 2
                     request.finished = True
                     session.commit()
                     return
@@ -318,6 +319,7 @@ def main():
                             "date": request.date
                         }))
                     request.finished = True
+                    request.state = 3
                     session.commit()
                     return
 

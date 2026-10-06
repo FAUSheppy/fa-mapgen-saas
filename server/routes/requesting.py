@@ -76,23 +76,38 @@ def request_preview(mapid):
     options = _build_options_dict({"map_name": mapid})
     request_id = str(uuid.uuid4())
     options_full = utils.mapgen_style.generate_map_config(options)
-    queue_entry = RequestQueue(
-        options=json.dumps(options_full, sort_keys=True),
-        date=datetime.datetime.now().timestamp(),
-        request_id=request_id,
-        requester=flask.request.remote_addr,
-        count=1,
-        finished=False,
-    )
-    db.session.add(queue_entry)
-    db.session.commit()
+
+    rq = db.session.query(RequestQueue).filter(
+        RequestQueue.options.ilike(mapid)
+    ).first()
+
+    wait_for_request = True
+    if rq and rq.state == 1:
+        wait_for_request = False
+    if rq and rq.state == 2:
+        return ("The generation request failed because it lead to an infinite loop", 500)
+    if rq and rq.state == 3:
+        return ("The generation request failed because of invalid options (possibly unsupported mapgen version)", 500)
+    else:
+        queue_entry = RequestQueue(
+            options=json.dumps(options_full, sort_keys=True),
+            date=datetime.datetime.now().timestamp(),
+            request_id=request_id,
+            requester=flask.request.remote_addr,
+            count=1,
+            finished=False,
+        )
+
+        db.session.add(queue_entry)
+        db.session.commit()
 
     # wait for request to finish #
-    while True:
+    while wait_for_request:
 
         rq = db.session.query(RequestQueue).filter(RequestQueue.request_id==request_id,
                 RequestQueue.finished).first()
         if rq:
             map_name = json.loads(rq.options)["map_name"]
-            return routes.map_preview.get_map_image(map_name + "_preview.png")
-
+            break
+    
+    return routes.map_preview.get_map_image(map_name + "_preview.png")
