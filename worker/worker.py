@@ -177,6 +177,10 @@ def generate(options: str, count: int) -> None:
 
     version = options.pop("version", None)
 
+    if "map_name" in options:
+        VERSION_POS = 3
+        version = options["map_name"].split("_")[VERSION_POS]
+
     binary = "/NeroxisGen_1.21.1.jar"
     if version:
         version = allowed.sub("", str(version))
