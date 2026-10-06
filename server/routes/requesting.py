@@ -1,4 +1,5 @@
 import flask
+import time
 import sys
 from flask import Blueprint, jsonify
 
@@ -78,17 +79,17 @@ def request_preview(mapid):
     options_full = utils.mapgen_style.generate_map_config(options)
 
     rq = db.session.query(RequestQueue).filter(
-        RequestQueue.options.ilike(mapid)
+        RequestQueue.options.ilike(f"%{mapid}%")
     ).first()
 
     wait_for_request = True
     if rq and rq.state == 1:
         wait_for_request = False
-    if rq and rq.state == 2:
+    elif rq and rq.state == 2:
         return ("The generation request failed because it lead to an infinite loop", 422)
-    if rq and rq.state == 3:
+    elif rq and rq.state == 3:
         return ("The generation request failed because of invalid options (possibly unsupported mapgen version)", 400)
-    if rq and rq.state >= 4:
+    elif rq and rq.state >= 4:
         return ("The generation request failed for unknown reasons", 500)
     else:
         queue_entry = RequestQueue(
@@ -108,8 +109,11 @@ def request_preview(mapid):
 
         rq = db.session.query(RequestQueue).filter(RequestQueue.request_id==request_id,
                 RequestQueue.finished).first()
+
         if rq:
             map_name = json.loads(rq.options)["map_name"]
             break
+        
+        time.sleep(1)
     
     return routes.map_preview.get_map_image(map_name + "_preview.png")
