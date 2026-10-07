@@ -177,7 +177,7 @@ def generate(options: str, count: int) -> None:
 
     version = options.pop("version", None)
 
-    if "map_name" in options:
+    if options.get("map_name"):
         VERSION_POS = 3
         version = options["map_name"].split("_")[VERSION_POS]
 
@@ -192,9 +192,10 @@ def generate(options: str, count: int) -> None:
         binary,
         "--out-path",
         "./output/",
-        "--num-to-generate", str(int(count))
     ]
 
+    if not options.get("map_name"):
+        cmd.append(f"--num-to-generate {count}")
     
 
     
