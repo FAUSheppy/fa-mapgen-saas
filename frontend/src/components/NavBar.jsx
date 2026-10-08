@@ -90,7 +90,9 @@ export default function NavBar() {
                 </a>
                 </div>
                 ) : (
-                <a href="/oauth2/start" className="mx-3 float-right">
+                <a href=`/oauth2/start?rd=${encodeURIComponent(
+                    window.location.pathname + window.location.search
+                )}`}
                     Login
                 </a>
                 )}
