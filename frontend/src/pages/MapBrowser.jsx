@@ -70,12 +70,10 @@ export default function MapBrowser() {
     }, [filters]);
 
     useEffect(() => {
-        loadMaps();
-    }, [loadMaps]);
 
-    useEffect(() => {
+        loadMaps();
+
         if (!requestId) {
-            loadMaps();
             return;
         }
     
