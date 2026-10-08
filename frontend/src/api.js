@@ -14,10 +14,16 @@ export const voteMap = async (mapId, vote) => {
         });
     } catch (error) {
         if (error.response?.status === 401) {
-            window.location.href = "/oauth2/start";
+            const redirectUrl =
+                window.location.pathname +
+                window.location.search +
+                window.location.hash;
+
+            window.location.href =
+                `/oauth2/start?rd=${encodeURIComponent(redirectUrl)}`;
+
             return;
         }
-
         throw error;
     }
 };
